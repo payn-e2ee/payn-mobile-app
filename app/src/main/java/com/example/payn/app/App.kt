@@ -12,7 +12,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountBox
 import androidx.compose.material.icons.filled.Call
 import androidx.compose.material.icons.filled.Email
-import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Text
 import androidx.compose.runtime.mutableStateOf
@@ -22,12 +21,11 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.payn.call.presentation.CallsScreen
 import com.example.payn.chat.presentation.ChatsScreen
 import com.example.payn.contact.presentation.ContactsScreen
-import com.example.payn.home.presentation.HomeScreen
-import com.example.payn.profile.presentation.ProfileScreen
 import com.example.payn.settings.presentation.SettingsScreen
 
 @Composable
@@ -40,6 +38,9 @@ fun AppNavHost(
         navController,
         startDestination
     ) {
+        composable<Route.Welcome> {
+            WelcomeScreen()
+        }
         composable<Route.Chats> {
             ChatsScreen()
         }
@@ -55,89 +56,81 @@ fun AppNavHost(
         composable<Route.Settings> {
             SettingsScreen()
         }
-
-        composable<Route.Profile> {
-            ProfileScreen("Abdelfetah")
-        }
     }
 }
 
 @Composable
 fun App(modifier: Modifier = Modifier) {
+    val bottomBarRoutes = setOf(
+        Route.Chats,
+        Route.Contacts,
+        Route.Calls,
+        Route.Settings
+    )
+
     val navController = rememberNavController()
-    val startDestination = Route.Chats
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentRoute = navBackStackEntry?.destination?.route
+    val startDestination = Route.Welcome
     var selectedDestination by rememberSaveable(
         stateSaver = RouteSaver
     ) {
-        mutableStateOf<Route>(startDestination)
+        mutableStateOf(startDestination)
     }
 
     Scaffold(
         modifier = modifier,
         bottomBar = {
-            NavigationBar(windowInsets = NavigationBarDefaults.windowInsets) {
-                NavigationBarItem(
-                    selected = selectedDestination == Route.Chats,
-                    onClick = {
-                        navController.navigate(route = Route.Chats)
-                        selectedDestination = Route.Chats
-                    },
-                    icon = {
-                        Icon(
-                            Icons.Default.Email,
-                            contentDescription = "Chat icon"
-                        )
-                    },
-                    label = { Text("Chats") }
-                )
-                NavigationBarItem(
-                    selected = selectedDestination == Route.Contacts,
-                    onClick = {
-                        navController.navigate(route = Route.Contacts)
-                        selectedDestination = Route.Contacts
-                    },
-                    icon = {
-                        Icon(
-                            Icons.Default.AccountBox,
-                            contentDescription = "contacts icon"
-                        )
-                    },
-                    label = { Text("Contact") }
-                )
-                NavigationBarItem(
-                    selected = selectedDestination == Route.Calls,
-                    onClick = {
-                        navController.navigate(route = Route.Calls)
-                        selectedDestination = Route.Calls
-                    },
-                    icon = {
-                        Icon(
-                            Icons.Default.Call,
-                            contentDescription = "Call icon"
-                        )
-                    },
-                    label = { Text("calls") }
-                )
-                NavigationBarItem(
-                    selected = selectedDestination == Route.Settings,
-                    onClick = {
-                        navController.navigate(route = Route.Settings)
-                        selectedDestination = Route.Settings
-                    },
-                    icon = {
-                        Icon(
-                            Icons.Default.Settings,
-                            contentDescription = "Settings icon"
-                        )
-                    },
-                    label = { Text("Settings") }
-                )
+            val showBottomBar = bottomBarRoutes.any { it.toString() == currentRoute }
+            if (showBottomBar) {
+                NavigationBar(windowInsets = NavigationBarDefaults.windowInsets) {
+
+                    NavigationBarItem(
+                        selected = selectedDestination == Route.Chats,
+                        onClick = {
+                            navController.navigate(Route.Chats)
+                            selectedDestination = Route.Chats
+                        },
+                        icon = { Icon(Icons.Default.Email, null) },
+                        label = { Text("Chats") }
+                    )
+
+                    NavigationBarItem(
+                        selected = selectedDestination == Route.Contacts,
+                        onClick = {
+                            navController.navigate(Route.Contacts)
+                            selectedDestination = Route.Contacts
+                        },
+                        icon = { Icon(Icons.Default.AccountBox, null) },
+                        label = { Text("Contact") }
+                    )
+
+                    NavigationBarItem(
+                        selected = selectedDestination == Route.Calls,
+                        onClick = {
+                            navController.navigate(Route.Calls)
+                            selectedDestination = Route.Calls
+                        },
+                        icon = { Icon(Icons.Default.Call, null) },
+                        label = { Text("Calls") }
+                    )
+
+                    NavigationBarItem(
+                        selected = selectedDestination == Route.Settings,
+                        onClick = {
+                            navController.navigate(Route.Settings)
+                            selectedDestination = Route.Settings
+                        },
+                        icon = { Icon(Icons.Default.Settings, null) },
+                        label = { Text("Settings") }
+                    )
+                }
             }
         }
     ) { contentPadding ->
         AppNavHost(
             navController = navController,
-            startDestination = Route.Chats,
+            startDestination = Route.Welcome,
             modifier = Modifier.padding(contentPadding)
         )
     }

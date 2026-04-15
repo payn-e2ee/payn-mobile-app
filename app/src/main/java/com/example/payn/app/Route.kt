@@ -6,7 +6,7 @@ import androidx.compose.runtime.saveable.Saver
 val RouteSaver = Saver<Route, String>(
     save = { route ->
         when (route) {
-            Route.Home -> "home"
+            Route.Welcome -> "welcome"
             Route.Chats -> "chats"
             Route.Contacts -> "contacts"
             Route.Calls -> "calls"
@@ -15,19 +15,19 @@ val RouteSaver = Saver<Route, String>(
     },
     restore = { value ->
         when (value) {
-            "home" -> Route.Home
+            "welcome" -> Route.Welcome
             "chats" -> Route.Chats
             "contacts" -> Route.Contacts
             "calls" -> Route.Calls
             "settings" -> Route.Settings
-            else -> Route.Home
+            else -> Route.Welcome
         }
     }
 )
 
 sealed interface Route {
     @Serializable
-    data object Home : Route
+    data object Welcome : Route
 
     @Serializable
     data object Chats : Route
