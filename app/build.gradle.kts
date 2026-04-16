@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.ksp)
 }
 
 android {
@@ -45,13 +46,29 @@ kotlin {
     }
 }
 dependencies {
+    implementation(libs.bcprov.jdk15to18)
+
+    implementation(libs.sqlcipher.android)
+    implementation(libs.androidx.room.runtime)
+    ksp(libs.androidx.room.compiler)
+
+    implementation(libs.androidx.datastore)
+    implementation(libs.androidx.datastore.preferences)
+
     implementation(libs.jetbrains.kotlinx.serialization.json)
 
     implementation(libs.bundles.ktor)
     implementation(libs.ktor.client.okhttp)
 
     implementation(platform(libs.koin.bom))
-    implementation(libs.koin.android)  // No version needed
+    implementation(libs.koin.androidx.compose)
+    implementation(libs.koin.androidx.compose.navigation)
+    // Koin
+    implementation(libs.koin.android)
+    // Koin Annotations
+    implementation(libs.koin.annotations)
+    // Koin Annotations KSP Compiler
+    ksp(libs.koin.ksp.compiler)
 
     implementation(libs.androidx.compose.material.icons.core)
 
