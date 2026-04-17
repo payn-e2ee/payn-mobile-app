@@ -55,6 +55,9 @@ dependencies {
     implementation(libs.androidx.datastore)
     implementation(libs.androidx.datastore.preferences)
 
+    implementation(libs.composables.core)
+    implementation(libs.icons.lucide)
+
     implementation(libs.jetbrains.kotlinx.serialization.json)
 
     implementation(libs.bundles.ktor)

@@ -1,8 +1,8 @@
 package com.example.payn.core.data
 
 import com.example.payn.core.domain.DataError
+import com.example.payn.core.domain.ErrorResponse
 import com.example.payn.core.domain.Result
-import io.ktor.client.call.NoTransformationFoundException
 import io.ktor.client.call.body
 import io.ktor.client.network.sockets.SocketTimeoutException
 import io.ktor.client.statement.HttpResponse
@@ -12,7 +12,7 @@ import kotlin.coroutines.coroutineContext
 
 suspend inline fun <reified T> safeCall(
     execute: () -> HttpResponse
-): com.example.payn.core.domain.Result<T, DataError.Remote> {
+): Result<T, DataError.Remote> {
     val response = try {
         execute()
     } catch (e: SocketTimeoutException) {
@@ -34,9 +34,23 @@ suspend inline fun <reified T> responseToResult(
         in 200..299 -> {
             try {
                 Result.Success(response.body<T>())
-            } catch (e: NoTransformationFoundException) {
+            } catch (e: Exception) {
                 Result.Error(DataError.Remote.SERIALIZATION)
             }
+        }
+
+        400 -> {
+            val errorDto = try {
+                response.body<ErrorResponse>()
+            } catch (e: Exception) {
+                null
+            }
+            Result.Error(
+                DataError.Remote.BAD_REQUEST(
+                    errorDto?.message ?: "Unknown error",
+                    errorDto?.errors
+                )
+            )
         }
 
         408 -> Result.Error(DataError.Remote.REQUEST_TIMEOUT)

@@ -21,6 +21,8 @@ sqlcipherAndroid = "4.14.1"
 koin-bom = "4.1.1"
 koin-annotations = "2.3.1"  # Stable version
 ksp = "2.3.2"  # Required for Koin Annotations 2.3.1
+composables-core = "1.49.6"
+icons-lucide = "1.0.0"
 
 [libraries]
 androidx-compose-material-icons-core = { module = "androidx.compose.material:material-icons-core" }
@@ -39,6 +41,8 @@ androidx-navigation-compose = { group = "androidx.navigation", name = "navigatio
 androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "roomRuntime" }
 androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "roomRuntime" }
 bcprov-jdk15to18 = { module = "org.bouncycastle:bcprov-jdk15to18", version.ref = "bcprovJdk15to18" }
+composables-core = { module = "com.composables:core", version.ref = "composables-core" }
+icons-lucide = { module = "com.composables:icons-lucide", version.ref = "icons-lucide" }
 jetbrains-kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json" }
 kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "serialization" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
