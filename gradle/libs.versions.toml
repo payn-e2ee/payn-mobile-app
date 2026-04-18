@@ -1,6 +1,8 @@
 [versions]
 agp = "8.13.2"
 bcprovJdk15to18 = "1.84"
+coilCompose = "3.4.0"
+coilNetworkOkhttp = "3.4.0"
 datastore = "1.2.1"
 datastorePreferences = "1.2.1"
 kotlin = "2.3.20"
@@ -9,6 +11,7 @@ lifecycleRuntimeKtx = "2.10.0"
 activityCompose = "1.13.0"
 composeBom = "2026.03.01"
 navigationCompose = "2.9.7"
+prettytime = "5.0.8.Final"
 roomRuntime = "2.8.4"
 serialization = "1.11.0"
 junit = "4.13.2"
@@ -41,6 +44,8 @@ androidx-navigation-compose = { group = "androidx.navigation", name = "navigatio
 androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "roomRuntime" }
 androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "roomRuntime" }
 bcprov-jdk15to18 = { module = "org.bouncycastle:bcprov-jdk15to18", version.ref = "bcprovJdk15to18" }
+coil-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coilCompose" }
+coil-network-okhttp = { module = "io.coil-kt.coil3:coil-network-okhttp", version.ref = "coilNetworkOkhttp" }
 composables-core = { module = "com.composables:core", version.ref = "composables-core" }
 icons-lucide = { module = "com.composables:icons-lucide", version.ref = "icons-lucide" }
 jetbrains-kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json" }
@@ -72,6 +77,7 @@ koin-test = { module = "io.insert-koin:koin-test" }
 androidx-material3 = { group = "androidx.compose.material3", name = "material3", version.ref = "material3" }
 
 androidx-datastore-core = { group = "androidx.datastore", name = "datastore-core", version.ref = "datastoreCore" }
+prettytime = { module = "org.ocpsoft.prettytime:prettytime", version.ref = "prettytime" }
 sqlcipher-android = { module = "net.zetetic:sqlcipher-android", version.ref = "sqlcipherAndroid" }
 
 koin-annotations = { module = "io.insert-koin:koin-annotations", version.ref = "koin-annotations" }

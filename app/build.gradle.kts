@@ -46,6 +46,11 @@ kotlin {
     }
 }
 dependencies {
+    implementation(libs.prettytime)
+
+    implementation(libs.coil.compose)
+    implementation(libs.coil.network.okhttp)
+
     implementation(libs.bcprov.jdk15to18)
 
     implementation(libs.sqlcipher.android)

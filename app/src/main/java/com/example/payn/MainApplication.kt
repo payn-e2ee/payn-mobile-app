@@ -3,8 +3,12 @@ package com.example.payn
 import android.app.Application
 import com.example.payn.core.data.AppDatabase
 import com.example.payn.core.data.CryptoManager
+import com.example.payn.core.data.KeyValueStorage
 import com.example.payn.core.domain.IdentityKeysEntity
 import com.example.payn.di.appModule
+import io.ktor.client.HttpClient
+import io.ktor.client.request.HttpRequestPipeline
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.runBlocking
 import org.bouncycastle.crypto.params.X25519PrivateKeyParameters
 import org.bouncycastle.crypto.params.X25519PublicKeyParameters
@@ -30,6 +34,17 @@ class MainApplication : Application() {
         // Force initialization
         val appDatabase = koin.get<AppDatabase>()
         val cryptoManager = koin.get<CryptoManager>()
+        val httpClient = koin.get<HttpClient>()
+        val keyValueStorage = koin.get<KeyValueStorage>()
+
+        httpClient.requestPipeline.intercept(HttpRequestPipeline.State) {
+            val accessToken = keyValueStorage.getString("access_token").firstOrNull()
+            if (accessToken != null) {
+                context.headers.append("Authorization", "Bearer $accessToken")
+            }
+
+            proceed()
+        }
 
         runBlocking {
             val identityKey = appDatabase.identityKeysDao().getIdentityKey()
