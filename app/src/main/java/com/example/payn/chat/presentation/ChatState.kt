@@ -1,6 +1,8 @@
 package com.example.payn.chat.presentation
 
+import com.example.payn.chat.domain.Chat
+
 data class ChatState(
-    val id: String = "",
-    val name: String = "name"
+    var searchQuery: String = "",
+    var chats: List<Chat> = emptyList(),
 )

@@ -1,5 +1,6 @@
 package com.example.payn.auth.data.dto
 
+import com.example.payn.core.data.dto.UserDTO
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 

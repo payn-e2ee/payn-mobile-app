@@ -3,10 +3,16 @@ package com.example.payn.di
 import com.example.payn.auth.data.network.AuthDataSource
 import com.example.payn.auth.data.repository.AuthRepository
 import com.example.payn.auth.presentation.login.LoginViewModel
+import com.example.payn.auth.presentation.welcome.WelcomeViewModel
+import com.example.payn.chat.data.network.ChatDataSource
+import com.example.payn.chat.data.repository.ChatRepository
+import com.example.payn.chat.presentation.ListChatsViewModel
 import com.example.payn.core.data.CryptoManager
 import com.example.payn.core.data.HttpClientFactory
 import com.example.payn.core.data.KeyValueStorage
 import com.example.payn.core.data.SecureDatabaseFactory
+import com.example.payn.core.data.network.UserDataSource
+import com.example.payn.core.data.repository.UserRepository
 import io.ktor.client.engine.HttpClientEngine
 import io.ktor.client.engine.okhttp.OkHttp
 import kotlinx.coroutines.runBlocking
@@ -20,8 +26,15 @@ val appModule = module {
     single { HttpClientFactory.create(get()) }
     singleOf(::CryptoManager)
     singleOf(::SecureDatabaseFactory)
+
     singleOf(::AuthDataSource)
+    singleOf(::ChatDataSource)
+    singleOf(::UserDataSource)
+
     singleOf(::AuthRepository)
+    singleOf(::ChatRepository)
+    singleOf(::UserRepository)
+
     single {
         runBlocking {
             get<SecureDatabaseFactory>().create(androidApplication())
@@ -31,5 +44,7 @@ val appModule = module {
         KeyValueStorage(androidApplication())
     }
 
+    viewModelOf(::WelcomeViewModel)
     viewModelOf(::LoginViewModel)
+    viewModelOf(::ListChatsViewModel)
 }

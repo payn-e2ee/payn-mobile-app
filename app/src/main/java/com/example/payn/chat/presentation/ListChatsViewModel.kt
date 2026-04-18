@@ -1,8 +1,8 @@
 package com.example.payn.chat.presentation
 
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.payn.chat.data.mappers.toChat
 import com.example.payn.chat.data.repository.ChatRepository
 import com.example.payn.core.domain.onSuccess
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -14,7 +14,6 @@ import kotlinx.coroutines.launch
 
 class ListChatsViewModel(
     private val chatRepository: ChatRepository,
-    private val savedStateHandle: SavedStateHandle
 ) : ViewModel() {
     private val _state = MutableStateFlow(ChatState())
     val state = _state
@@ -31,14 +30,17 @@ class ListChatsViewModel(
         viewModelScope.launch {
             chatRepository
                 .listChats()
-                .onSuccess { description ->
+                .onSuccess { response ->
                     _state.update {
                         it.copy(
-                            id = it.id,
-                            name = it.name
+                            chats = response.data.map { chatDTO -> chatDTO.toChat() }
                         )
                     }
                 }
         }
+    }
+
+    fun setSearchQuery(value: String) {
+        _state.update { it.copy(searchQuery = value) }
     }
 }

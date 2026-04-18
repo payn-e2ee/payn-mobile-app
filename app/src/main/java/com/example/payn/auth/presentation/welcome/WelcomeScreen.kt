@@ -1,4 +1,4 @@
-package com.example.payn.app
+package com.example.payn.auth.presentation.welcome
 
 
 import androidx.compose.foundation.background
@@ -19,9 +19,10 @@ import androidx.compose.ui.unit.sp
 import com.example.payn.ui.theme.*
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.NavHostController
+import com.example.payn.app.Route
 
 
 @Composable
@@ -69,12 +70,16 @@ fun GlassCard(
     }
 }
 
-@Preview
 @Composable
 fun WelcomeScreen(
-    onLoginClick: () -> Unit = {},
-    onSignupClick: () -> Unit = {}
+    viewModel: WelcomeViewModel,
+    navController: NavHostController
 ) {
+    if (viewModel.isAuthenticated()) {
+        navController.navigate(Route.Chats)
+        return
+    }
+    
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -148,13 +153,13 @@ fun WelcomeScreen(
                         text = "GlassChat",
                         fontSize = 32.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Color.White
+                        color = White
                     )
 
                     Text(
                         text = "Connect with everyone, beautifully",
                         fontSize = 18.sp,
-                        color = Color.White.copy(alpha = 0.8f),
+                        color = White.copy(alpha = 0.8f),
                         textAlign = TextAlign.Center
                     )
                 }
@@ -166,7 +171,7 @@ fun WelcomeScreen(
                 GlassCard(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clickable { onLoginClick() }
+                        .clickable { navController.navigate(Route.Login) }
                 ) {
                     Box(
                         modifier = Modifier
@@ -186,7 +191,10 @@ fun WelcomeScreen(
                 GlassCard(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clickable { onSignupClick() }
+                        .clickable {
+                            // FIXME: Navigate to register screen
+                            // navController.navigate(Route.Welcome)
+                        }
                 ) {
                     Box(
                         modifier = Modifier
