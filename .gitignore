@@ -13,3 +13,6 @@
 .externalNativeBuild
 .cxx
 local.properties
+
+# app config file
+app/src/main/java/com/example/payn/core/config/AppConfig.kt
