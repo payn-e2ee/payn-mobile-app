@@ -11,6 +11,7 @@ val RouteSaver = Saver<Route, String>(
             Route.Contacts -> "contacts"
             Route.Calls -> "calls"
             Route.Settings -> "settings"
+            Route.Login -> "login"
         }
     },
     restore = { value ->
@@ -20,6 +21,7 @@ val RouteSaver = Saver<Route, String>(
             "contacts" -> Route.Contacts
             "calls" -> Route.Calls
             "settings" -> Route.Settings
+            "login" -> Route.Login
             else -> Route.Welcome
         }
     }
@@ -40,4 +42,7 @@ sealed interface Route {
 
     @Serializable
     data object Settings : Route
+
+    @Serializable
+    data object Login : Route
 }

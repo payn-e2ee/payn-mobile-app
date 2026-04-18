@@ -23,10 +23,13 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.example.payn.auth.presentation.login.LoginScreen
+import com.example.payn.auth.presentation.login.LoginViewModel
 import com.example.payn.call.presentation.CallsScreen
 import com.example.payn.chat.presentation.ChatsScreen
 import com.example.payn.contact.presentation.ContactsScreen
 import com.example.payn.settings.presentation.SettingsScreen
+import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 fun AppNavHost(
@@ -39,8 +42,20 @@ fun AppNavHost(
         startDestination
     ) {
         composable<Route.Welcome> {
-            WelcomeScreen()
+            WelcomeScreen(
+                onLoginClick = { navController.navigate(Route.Login) }
+            )
         }
+
+        composable<Route.Login> {
+            val viewModel = koinViewModel<LoginViewModel>()
+
+            LoginScreen(
+                viewModel = viewModel,
+                navController
+            )
+        }
+
         composable<Route.Chats> {
             ChatsScreen()
         }
