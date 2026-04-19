@@ -7,7 +7,7 @@ fun ChatDTO.toChat(): Chat {
     return Chat(
         id = id,
         chatMembers = chatMembers.map { it.toChatMember() },
-        messages = messages.map { it.toMessage() },
+        messages = messages?.map { it.toMessage() },
         createdAt = createdAt
     )
 }

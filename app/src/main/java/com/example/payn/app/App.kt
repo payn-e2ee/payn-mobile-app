@@ -30,6 +30,8 @@ import com.example.payn.auth.presentation.welcome.WelcomeViewModel
 import com.example.payn.call.presentation.CallsScreen
 import com.example.payn.chat.presentation.ChatsScreen
 import com.example.payn.chat.presentation.ListChatsViewModel
+import com.example.payn.chat.presentation.chat_detail.ChatDetailScreen
+import com.example.payn.chat.presentation.chat_detail.ChatDetailViewModel
 import com.example.payn.contact.presentation.ContactsScreen
 import com.example.payn.settings.presentation.SettingsScreen
 import org.koin.compose.viewmodel.koinViewModel
@@ -65,6 +67,14 @@ fun AppNavHost(
         composable<Route.Chats> {
             val viewModel = koinViewModel<ListChatsViewModel>()
             ChatsScreen(
+                viewModel = viewModel,
+                navController = navController
+            )
+        }
+
+        composable<Route.Chat> {
+            val viewModel = koinViewModel<ChatDetailViewModel>()
+            ChatDetailScreen(
                 viewModel = viewModel,
                 navController = navController
             )

@@ -38,6 +38,7 @@ import coil3.compose.rememberAsyncImagePainter
 import coil3.request.ImageRequest
 import coil3.size.Size
 import com.example.payn.R
+import com.example.payn.app.Route
 import com.example.payn.chat.presentation.components.SearchInput
 import com.example.payn.core.presentation.components.GlassCard
 import com.example.payn.ui.theme.Blue400
@@ -103,14 +104,14 @@ fun ChatsScreen(
                 items(state.chats, key = { it.id }) { chat ->
                     val otherMember = chat.chatMembers.first { it.user.id != "" }
                     val chatName = "${otherMember.user.firstname} ${otherMember.user.lastname}"
-                    val message = chat.messages.firstOrNull()
+                    val message = chat.messages?.firstOrNull()
                     val messageDelivery = message?.messageDeliveries?.first()
 
                     GlassCard(
                         modifier = Modifier
                             .fillMaxWidth()
                             .clickable {
-                                navController.navigate("chat/${chat.id}")
+                                navController.navigate(Route.Chat(chat.id, null))
                             }
                     ) {
 
