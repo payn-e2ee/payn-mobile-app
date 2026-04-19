@@ -23,6 +23,7 @@ import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavHostController
 import com.example.payn.app.Route
+import com.example.payn.app.RouteSaver
 
 
 @Composable
@@ -76,10 +77,10 @@ fun WelcomeScreen(
     navController: NavHostController
 ) {
     if (viewModel.isAuthenticated()) {
-        navController.navigate(Route.Chats)
+        navController.navigate<Route>(Route.Chats)
         return
     }
-    
+
     Box(
         modifier = Modifier
             .fillMaxSize()
