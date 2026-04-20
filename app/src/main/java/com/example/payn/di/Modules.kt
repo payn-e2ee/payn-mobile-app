@@ -9,6 +9,7 @@ import com.example.payn.chat.data.repository.ChatRepository
 import com.example.payn.chat.presentation.ListChatsViewModel
 import com.example.payn.contact.data.network.ContactDataSource
 import com.example.payn.contact.data.repository.ContactRepository
+import com.example.payn.contact.presentation.contact_detail.ContactDetailViewModel
 import com.example.payn.contact.presentation.contact_list.ListContactsViewModel
 import com.example.payn.core.data.CryptoManager
 import com.example.payn.core.data.HttpClientFactory
@@ -53,4 +54,5 @@ val appModule = module {
     viewModelOf(::LoginViewModel)
     viewModelOf(::ListChatsViewModel)
     viewModelOf(::ListContactsViewModel)
+    viewModelOf(::ContactDetailViewModel)
 }

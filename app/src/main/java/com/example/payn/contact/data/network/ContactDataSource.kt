@@ -1,6 +1,5 @@
 package com.example.payn.contact.data.network
 
-import com.example.payn.chat.data.dto.ChatDTO
 import com.example.payn.contact.data.dto.ContactDTO
 import com.example.payn.core.config.AppConfig
 import com.example.payn.core.data.safeCall
@@ -17,6 +16,14 @@ class ContactDataSource(private val httpClient: HttpClient) {
         return safeCall<ApiResponse<List<ContactDTO>>> {
             httpClient.get(
                 urlString = "$BASE_URL/"
+            )
+        }
+    }
+
+    suspend fun getContactById(contactId: String): Result<ApiResponse<ContactDTO>, DataError.Remote> {
+        return safeCall<ApiResponse<ContactDTO>> {
+            httpClient.get(
+                urlString = "$BASE_URL/$contactId"
             )
         }
     }

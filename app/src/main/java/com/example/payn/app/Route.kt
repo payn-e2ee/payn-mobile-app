@@ -2,6 +2,7 @@ package com.example.payn.app
 
 import kotlinx.serialization.Serializable
 import androidx.compose.runtime.saveable.Saver
+import java.net.URI
 
 val RouteSaver = Saver<Route, String>(
     save = { route ->
@@ -12,6 +13,7 @@ val RouteSaver = Saver<Route, String>(
             Route.Calls -> "calls"
             Route.Settings -> "settings"
             Route.Login -> "login"
+            is Route.Contact -> "contact/${route.id}"
         }
     },
     restore = { value ->
@@ -22,7 +24,15 @@ val RouteSaver = Saver<Route, String>(
             "calls" -> Route.Calls
             "settings" -> Route.Settings
             "login" -> Route.Login
-            else -> Route.Welcome
+            else -> {
+                val uri = URI(value)
+                val pathSegments = uri.path.split("/")
+
+                when (pathSegments.first()) {
+                    "contact" -> Route.Contact(pathSegments[1])
+                    else -> Route.Welcome
+                }
+            }
         }
     }
 )
@@ -36,6 +46,10 @@ sealed interface Route {
 
     @Serializable
     data object Contacts : Route
+
+    @Serializable
+    data class Contact(val id: String) : Route
+
 
     @Serializable
     data object Calls : Route

@@ -33,6 +33,8 @@ import com.example.payn.auth.presentation.welcome.WelcomeViewModel
 import com.example.payn.call.presentation.CallsScreen
 import com.example.payn.chat.presentation.ChatsScreen
 import com.example.payn.chat.presentation.ListChatsViewModel
+import com.example.payn.contact.presentation.contact_detail.ContactDetailScreen
+import com.example.payn.contact.presentation.contact_detail.ContactDetailViewModel
 import com.example.payn.contact.presentation.contact_list.ContactsScreen
 import com.example.payn.contact.presentation.contact_list.ListContactsViewModel
 import com.example.payn.settings.presentation.SettingsScreen
@@ -77,6 +79,14 @@ fun AppNavHost(
         composable<Route.Contacts> {
             val viewModel = koinViewModel<ListContactsViewModel>()
             ContactsScreen(
+                viewModel = viewModel,
+                navController = navController
+            )
+        }
+
+        composable<Route.Contact> {
+            val viewModel = koinViewModel<ContactDetailViewModel>()
+            ContactDetailScreen(
                 viewModel = viewModel,
                 navController = navController
             )
