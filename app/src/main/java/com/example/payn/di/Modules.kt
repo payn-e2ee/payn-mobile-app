@@ -7,6 +7,9 @@ import com.example.payn.auth.presentation.welcome.WelcomeViewModel
 import com.example.payn.chat.data.network.ChatDataSource
 import com.example.payn.chat.data.repository.ChatRepository
 import com.example.payn.chat.presentation.ListChatsViewModel
+import com.example.payn.contact.data.network.ContactDataSource
+import com.example.payn.contact.data.repository.ContactRepository
+import com.example.payn.contact.presentation.contact_list.ListContactsViewModel
 import com.example.payn.core.data.CryptoManager
 import com.example.payn.core.data.HttpClientFactory
 import com.example.payn.core.data.KeyValueStorage
@@ -30,10 +33,12 @@ val appModule = module {
     singleOf(::AuthDataSource)
     singleOf(::ChatDataSource)
     singleOf(::UserDataSource)
+    singleOf(::ContactDataSource)
 
     singleOf(::AuthRepository)
     singleOf(::ChatRepository)
     singleOf(::UserRepository)
+    singleOf(::ContactRepository)
 
     single {
         runBlocking {
@@ -47,4 +52,5 @@ val appModule = module {
     viewModelOf(::WelcomeViewModel)
     viewModelOf(::LoginViewModel)
     viewModelOf(::ListChatsViewModel)
+    viewModelOf(::ListContactsViewModel)
 }
