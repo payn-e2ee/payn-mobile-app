@@ -13,4 +13,8 @@ class ChatRepository(
     suspend fun listChats(): Result<ApiResponse<List<ChatDTO>>, DataError> {
         return chatDataSource.listChats()
     }
+
+    suspend fun getChatById(chatId: String): Result<ApiResponse<ChatDTO>, DataError> {
+        return chatDataSource.getChatById(chatId)
+    }
 }
