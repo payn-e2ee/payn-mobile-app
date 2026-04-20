@@ -7,13 +7,10 @@ import com.example.payn.auth.presentation.welcome.WelcomeViewModel
 import com.example.payn.chat.data.network.ChatDataSource
 import com.example.payn.chat.data.repository.ChatRepository
 import com.example.payn.chat.presentation.ListChatsViewModel
-<<<<<<< view-chat
 import com.example.payn.chat.presentation.chat_detail.ChatDetailViewModel
-=======
 import com.example.payn.contact.data.network.ContactDataSource
 import com.example.payn.contact.data.repository.ContactRepository
 import com.example.payn.contact.presentation.contact_list.ListContactsViewModel
->>>>>>> main
 import com.example.payn.core.data.CryptoManager
 import com.example.payn.core.data.HttpClientFactory
 import com.example.payn.core.data.KeyValueStorage
@@ -56,9 +53,6 @@ val appModule = module {
     viewModelOf(::WelcomeViewModel)
     viewModelOf(::LoginViewModel)
     viewModelOf(::ListChatsViewModel)
-<<<<<<< view-chat
     viewModelOf(::ChatDetailViewModel)
-=======
     viewModelOf(::ListContactsViewModel)
->>>>>>> main
 }
