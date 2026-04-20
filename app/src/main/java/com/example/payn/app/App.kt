@@ -1,5 +1,6 @@
 package com.example.payn.app
 
+import android.util.Log
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
@@ -18,11 +19,13 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.example.payn.app.components.BottomNav
 import com.example.payn.auth.presentation.login.LoginScreen
 import com.example.payn.auth.presentation.login.LoginViewModel
 import com.example.payn.auth.presentation.welcome.WelcomeScreen
@@ -30,9 +33,14 @@ import com.example.payn.auth.presentation.welcome.WelcomeViewModel
 import com.example.payn.call.presentation.CallsScreen
 import com.example.payn.chat.presentation.ChatsScreen
 import com.example.payn.chat.presentation.ListChatsViewModel
+<<<<<<< view-chat
 import com.example.payn.chat.presentation.chat_detail.ChatDetailScreen
 import com.example.payn.chat.presentation.chat_detail.ChatDetailViewModel
 import com.example.payn.contact.presentation.ContactsScreen
+=======
+import com.example.payn.contact.presentation.contact_list.ContactsScreen
+import com.example.payn.contact.presentation.contact_list.ListContactsViewModel
+>>>>>>> main
 import com.example.payn.settings.presentation.SettingsScreen
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -81,7 +89,11 @@ fun AppNavHost(
         }
 
         composable<Route.Contacts> {
-            ContactsScreen()
+            val viewModel = koinViewModel<ListContactsViewModel>()
+            ContactsScreen(
+                viewModel = viewModel,
+                navController = navController
+            )
         }
 
         composable<Route.Calls> {
@@ -93,6 +105,7 @@ fun AppNavHost(
         }
     }
 }
+
 
 @Composable
 fun App(modifier: Modifier = Modifier) {
@@ -106,66 +119,41 @@ fun App(modifier: Modifier = Modifier) {
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
-    val startDestination = Route.Welcome
-    var selectedDestination by rememberSaveable(
-        stateSaver = RouteSaver
-    ) {
-        mutableStateOf(startDestination)
+
+    // Track selected destination
+    var selectedDestination by rememberSaveable(stateSaver = RouteSaver) {
+        mutableStateOf<Route>(Route.Chats)
     }
 
     Scaffold(
         modifier = modifier,
+        // Set containerColor to Transparent so the screen's custom background gradients show
+        containerColor = Color.Transparent,
         bottomBar = {
-            val showBottomBar = bottomBarRoutes.any { it.toString() == currentRoute }
+            val showBottomBar = bottomBarRoutes.any { it::class.qualifiedName == currentRoute }
+
             if (showBottomBar) {
-                NavigationBar(windowInsets = NavigationBarDefaults.windowInsets) {
-
-                    NavigationBarItem(
-                        selected = selectedDestination == Route.Chats,
-                        onClick = {
-                            navController.navigate(Route.Chats)
-                            selectedDestination = Route.Chats
-                        },
-                        icon = { Icon(Icons.Default.Email, null) },
-                        label = { Text("Chats") }
-                    )
-
-                    NavigationBarItem(
-                        selected = selectedDestination == Route.Contacts,
-                        onClick = {
-                            navController.navigate(Route.Contacts)
-                            selectedDestination = Route.Contacts
-                        },
-                        icon = { Icon(Icons.Default.AccountBox, null) },
-                        label = { Text("Contact") }
-                    )
-
-                    NavigationBarItem(
-                        selected = selectedDestination == Route.Calls,
-                        onClick = {
-                            navController.navigate(Route.Calls)
-                            selectedDestination = Route.Calls
-                        },
-                        icon = { Icon(Icons.Default.Call, null) },
-                        label = { Text("Calls") }
-                    )
-
-                    NavigationBarItem(
-                        selected = selectedDestination == Route.Settings,
-                        onClick = {
-                            navController.navigate(Route.Settings)
-                            selectedDestination = Route.Settings
-                        },
-                        icon = { Icon(Icons.Default.Settings, null) },
-                        label = { Text("Settings") }
-                    )
-                }
+                BottomNav(
+                    currentRoute = currentRoute,
+                    onNavigate = { route ->
+                        navController.navigate(route) {
+                            // Standard BottomNav behavior: pop up to start to avoid stack accumulation
+                            popUpTo(navController.graph.startDestinationId) {
+                                saveState = true
+                            }
+                            launchSingleTop = true
+                            restoreState = true
+                        }
+                        selectedDestination = route
+                    }
+                )
             }
         }
     ) { contentPadding ->
         AppNavHost(
             navController = navController,
             startDestination = Route.Welcome,
+            // Pass contentPadding but note that our BottomNav is floating
             modifier = Modifier.padding(contentPadding)
         )
     }
