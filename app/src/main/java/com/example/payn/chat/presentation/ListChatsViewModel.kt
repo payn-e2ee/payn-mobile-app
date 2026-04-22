@@ -33,7 +33,7 @@ class ListChatsViewModel(
                 .onSuccess { response ->
                     _state.update {
                         it.copy(
-                            chats = response.data.map { chatDTO -> chatDTO.toChat() }
+                            chats = response.data?.map { chatDTO -> chatDTO.toChat() } ?: emptyList()
                         )
                     }
                 }

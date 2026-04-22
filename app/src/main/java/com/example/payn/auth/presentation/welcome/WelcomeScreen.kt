@@ -170,9 +170,8 @@ fun WelcomeScreen(
             Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
 
                 GlassCard(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable { navController.navigate(Route.Login) }
+                    modifier = Modifier.fillMaxWidth(),
+                    onClick = { navController.navigate(Route.Login) }
                 ) {
                     Box(
                         modifier = Modifier
@@ -190,12 +189,8 @@ fun WelcomeScreen(
                 }
 
                 GlassCard(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable {
-                            // FIXME: Navigate to register screen
-                            // navController.navigate(Route.Welcome)
-                        }
+                    modifier = Modifier.fillMaxWidth(),
+                    onClick = { navController.navigate(Route.Register) }
                 ) {
                     Box(
                         modifier = Modifier
