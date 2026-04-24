@@ -17,6 +17,8 @@ import androidx.navigation.compose.rememberNavController
 import com.example.payn.app.components.BottomNav
 import com.example.payn.auth.presentation.login.LoginScreen
 import com.example.payn.auth.presentation.login.LoginViewModel
+import com.example.payn.auth.presentation.register.RegisterScreen
+import com.example.payn.auth.presentation.register.RegisterViewModel
 import com.example.payn.auth.presentation.welcome.WelcomeScreen
 import com.example.payn.auth.presentation.welcome.WelcomeViewModel
 import com.example.payn.call.presentation.CallsScreen
@@ -54,6 +56,15 @@ fun AppNavHost(
             LoginScreen(
                 viewModel = viewModel,
                 navController
+            )
+        }
+
+        composable<Route.Register> {
+            val viewModel = koinViewModel<RegisterViewModel>()
+
+            RegisterScreen(
+                viewModel = viewModel,
+                navController = navController
             )
         }
 

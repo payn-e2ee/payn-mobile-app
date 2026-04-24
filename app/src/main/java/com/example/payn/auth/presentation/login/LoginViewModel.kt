@@ -68,9 +68,11 @@ class LoginViewModel(
                 state.value.username,
                 state.value.password,
                 identityKey
-            ).onSuccess {
-                keyValueStorage.putString("access_token", it.data.accessToken)
-                onSuccess()
+            ).onSuccess { response ->
+                response.data?.let {
+                    keyValueStorage.putString("access_token", it.accessToken)
+                    onSuccess()
+                }
             }.onError { err ->
                 if (err is DataError.Remote.BAD_REQUEST) {
                     onError(err.message)

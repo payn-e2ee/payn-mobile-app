@@ -43,6 +43,7 @@ fun Input(
     onValueChange: (String) -> Unit,
     placeholder: String,
     type: InputType = InputType.Text,
+    keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
     errorMessage: String = ""
 ) {
     var passwordVisible by remember { mutableStateOf(false) }
@@ -84,7 +85,7 @@ fun Input(
             keyboardOptions = if (isPassword) {
                 KeyboardOptions(keyboardType = KeyboardType.Password)
             } else {
-                KeyboardOptions.Default
+                keyboardOptions
             },
 
             // 👁️ Toggle icon (only for password)
