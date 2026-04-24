@@ -28,6 +28,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import com.composables.icons.lucide.Lucide
 import com.composables.icons.lucide.UserPlus
+import com.example.payn.app.Route
 import com.example.payn.contact.presentation.components.ContactItem
 import com.example.payn.contact.presentation.components.SearchInput
 import com.example.payn.core.presentation.components.GlassCard
@@ -138,7 +139,7 @@ fun ContactsScreen(
             items(state.contacts, key = { it.id }) { contact ->
                 ContactItem(
                     contact = contact,
-                    onContactClick = { },
+                    onContactClick = { navController.navigate(Route.Contact(contact.id)) },
                     onChatClick = { }
                 )
             }

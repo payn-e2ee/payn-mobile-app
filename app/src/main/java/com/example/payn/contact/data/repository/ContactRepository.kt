@@ -1,7 +1,5 @@
 package com.example.payn.contact.data.repository
 
-import com.example.payn.chat.data.dto.ChatDTO
-import com.example.payn.chat.data.network.ChatDataSource
 import com.example.payn.contact.data.dto.ContactDTO
 import com.example.payn.contact.data.network.ContactDataSource
 import com.example.payn.core.domain.ApiResponse
@@ -13,5 +11,9 @@ class ContactRepository(
 ) {
     suspend fun listContacts(): Result<ApiResponse<List<ContactDTO>>, DataError> {
         return contactDataSource.listContacts()
+    }
+
+    suspend fun getContactById(contactId: String): Result<ApiResponse<ContactDTO>, DataError> {
+        return contactDataSource.getContactById(contactId)
     }
 }

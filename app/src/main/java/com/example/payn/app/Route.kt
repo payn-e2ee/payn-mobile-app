@@ -16,6 +16,7 @@ val RouteSaver = Saver<Route, String>(
             is Route.Login -> "login"
             is Route.Chat -> if (route.id != null) "chat/${route.id}" else "chat/init?user_id=${route.userId}"
             is Route.Register -> "register"
+            is Route.Contact -> "contact/${route.id}"
         }
     },
     restore = { value ->
@@ -27,16 +28,16 @@ val RouteSaver = Saver<Route, String>(
             "settings" -> Route.Settings
             "login" -> Route.Login
             "register" -> Route.Register
-            else -> {
+          else -> {
                 val uri = URI(value)
                 val pathSegments = uri.path.split("/")
                 val params = parseQueryParams(uri.query)
 
                 when (pathSegments.first()) {
+                    "contact" -> Route.Contact(pathSegments[1])
                     "chat" -> Route.Chat(pathSegments.getOrNull(1), params["user_id"])
                     else -> Route.Welcome
                 }
-            }
         }
     }
 )
@@ -57,6 +58,10 @@ sealed interface Route {
 
     @Serializable
     data object Contacts : Route
+
+    @Serializable
+    data class Contact(val id: String) : Route
+
 
     @Serializable
     data object Calls : Route
