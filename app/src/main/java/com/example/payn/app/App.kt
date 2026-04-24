@@ -32,6 +32,7 @@ import com.example.payn.chat.presentation.chat_detail.ChatDetailViewModel
 import com.example.payn.contact.presentation.contact_list.ContactsScreen
 import com.example.payn.contact.presentation.contact_list.ListContactsViewModel
 import com.example.payn.settings.presentation.SettingsScreen
+import com.example.payn.settings.presentation.SettingsViewModel
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
@@ -108,7 +109,11 @@ fun AppNavHost(
         }
 
         composable<Route.Settings> {
-            SettingsScreen()
+            val viewModel = koinViewModel<SettingsViewModel>()
+            SettingsScreen(
+                viewModel = viewModel,
+                navController = navController
+            )
         }
     }
 }
