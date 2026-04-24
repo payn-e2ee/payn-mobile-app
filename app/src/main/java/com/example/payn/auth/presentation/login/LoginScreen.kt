@@ -199,8 +199,7 @@ fun LoginScreen(
                             color = Blue500,
                             fontWeight = FontWeight.SemiBold,
                             modifier = Modifier.clickable {
-                                // TODO: Should navigate to RegisterScreen (currently we don't have that screen)
-                                // navController.navigate(Route.Register)
+                                navController.navigate(Route.Register)
                             })
                     }
                 }

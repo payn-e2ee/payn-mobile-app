@@ -3,10 +3,12 @@ package com.example.payn.di
 import com.example.payn.auth.data.network.AuthDataSource
 import com.example.payn.auth.data.repository.AuthRepository
 import com.example.payn.auth.presentation.login.LoginViewModel
+import com.example.payn.auth.presentation.register.RegisterViewModel
 import com.example.payn.auth.presentation.welcome.WelcomeViewModel
 import com.example.payn.chat.data.network.ChatDataSource
 import com.example.payn.chat.data.repository.ChatRepository
 import com.example.payn.chat.presentation.ListChatsViewModel
+import com.example.payn.chat.presentation.chat_detail.ChatDetailViewModel
 import com.example.payn.contact.data.network.ContactDataSource
 import com.example.payn.contact.data.repository.ContactRepository
 import com.example.payn.contact.presentation.contact_detail.ContactDetailViewModel
@@ -52,7 +54,9 @@ val appModule = module {
 
     viewModelOf(::WelcomeViewModel)
     viewModelOf(::LoginViewModel)
+    viewModelOf(::RegisterViewModel)
     viewModelOf(::ListChatsViewModel)
+    viewModelOf(::ChatDetailViewModel)
     viewModelOf(::ListContactsViewModel)
     viewModelOf(::ContactDetailViewModel)
 }

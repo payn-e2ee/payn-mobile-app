@@ -19,4 +19,12 @@ class ChatDataSource(private val httpClient: HttpClient) {
             )
         }
     }
+
+    suspend fun getChatById(chatId: String): Result<ApiResponse<ChatDTO>, DataError.Remote> {
+        return safeCall<ApiResponse<ChatDTO>> {
+            httpClient.get(
+                urlString = "$BASE_URL/$chatId"
+            )
+        }
+    }
 }
