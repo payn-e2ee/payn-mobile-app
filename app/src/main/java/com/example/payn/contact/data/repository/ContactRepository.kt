@@ -5,6 +5,7 @@ import com.example.payn.contact.data.network.ContactDataSource
 import com.example.payn.core.domain.ApiResponse
 import com.example.payn.core.domain.DataError
 import com.example.payn.core.domain.Result
+import com.example.payn.contact.data.dto.CreateContactDTO
 
 class ContactRepository(
     private val contactDataSource: ContactDataSource,
@@ -15,5 +16,9 @@ class ContactRepository(
 
     suspend fun getContactById(contactId: String): Result<ApiResponse<ContactDTO>, DataError> {
         return contactDataSource.getContactById(contactId)
+    }
+
+    suspend fun createContact(createContactDTO: CreateContactDTO): Result<ApiResponse<ContactDTO>, DataError> {
+        return contactDataSource.createContact(createContactDTO)
     }
 }
