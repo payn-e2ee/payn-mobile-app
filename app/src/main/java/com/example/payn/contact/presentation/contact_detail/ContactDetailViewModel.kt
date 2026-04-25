@@ -7,6 +7,7 @@ import androidx.navigation.toRoute
 import com.example.payn.app.Route
 import com.example.payn.contact.data.mappers.toContact
 import com.example.payn.contact.data.repository.ContactRepository
+import com.example.payn.core.domain.onError
 import com.example.payn.core.domain.onSuccess
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -42,6 +43,25 @@ class ContactDetailViewModel(
                         it.copy(
                             contact = contact
                         )
+                    }
+                }
+        }
+    }
+
+    fun deleteContact(onDeleted: () -> Unit) {
+        viewModelScope.launch {
+            _state.update { it.copy(isDeleting = true, error = null) }
+            contactRepository.deleteContact(contactId)
+                .onSuccess {
+                    _state.update { it.copy(isDeleting = false) }
+                    onDeleted()
+                }
+                .onError { error ->
+                    _state.update { 
+                        it.copy(
+                            isDeleting = false,
+                            error = error::class.simpleName ?: "Unknown Error"
+                        ) 
                     }
                 }
         }

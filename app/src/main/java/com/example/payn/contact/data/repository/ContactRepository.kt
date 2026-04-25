@@ -21,4 +21,8 @@ class ContactRepository(
     suspend fun createContact(createContactDTO: CreateContactDTO): Result<ApiResponse<ContactDTO>, DataError> {
         return contactDataSource.createContact(createContactDTO)
     }
+
+    suspend fun deleteContact(contactId: String): Result<ApiResponse<Unit>, DataError> {
+        return contactDataSource.deleteContact(contactId)
+    }
 }

@@ -259,6 +259,11 @@ fun ContactDetailScreen(
 
                     GlassCard(
                         modifier = Modifier.fillMaxWidth(),
+                        onClick = {
+                            viewModel.deleteContact {
+                                navController.navigateUp()
+                            }
+                        }
                     ) {
                         Row(
                             modifier = Modifier.padding(16.dp),

@@ -9,6 +9,7 @@ import com.example.payn.core.domain.Result
 import io.ktor.client.HttpClient
 import io.ktor.client.request.get
 import com.example.payn.contact.data.dto.CreateContactDTO
+import io.ktor.client.request.delete
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
@@ -28,6 +29,14 @@ class ContactDataSource(private val httpClient: HttpClient) {
     suspend fun getContactById(contactId: String): Result<ApiResponse<ContactDTO>, DataError.Remote> {
         return safeCall<ApiResponse<ContactDTO>> {
             httpClient.get(
+                urlString = "$BASE_URL/$contactId"
+            )
+        }
+    }
+
+    suspend fun deleteContact(contactId: String): Result<ApiResponse<Unit>, DataError.Remote> {
+        return safeCall<ApiResponse<Unit>> {
+            httpClient.delete(
                 urlString = "$BASE_URL/$contactId"
             )
         }
