@@ -6,6 +6,7 @@ import com.example.payn.core.domain.ApiResponse
 import com.example.payn.core.domain.DataError
 import com.example.payn.core.domain.Result
 import com.example.payn.contact.data.dto.CreateContactDTO
+import com.example.payn.contact.data.dto.UpdateContactDTO
 
 class ContactRepository(
     private val contactDataSource: ContactDataSource,
@@ -24,5 +25,9 @@ class ContactRepository(
 
     suspend fun deleteContact(contactId: String): Result<ApiResponse<Unit>, DataError> {
         return contactDataSource.deleteContact(contactId)
+    }
+
+    suspend fun updateContact(contactId: String, updateContactDTO: UpdateContactDTO): Result<ApiResponse<ContactDTO>, DataError> {
+        return contactDataSource.updateContact(contactId, updateContactDTO)
     }
 }

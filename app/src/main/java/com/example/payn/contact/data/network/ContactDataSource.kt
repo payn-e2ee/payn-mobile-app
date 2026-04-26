@@ -9,8 +9,10 @@ import com.example.payn.core.domain.Result
 import io.ktor.client.HttpClient
 import io.ktor.client.request.get
 import com.example.payn.contact.data.dto.CreateContactDTO
+import com.example.payn.contact.data.dto.UpdateContactDTO
 import io.ktor.client.request.delete
 import io.ktor.client.request.post
+import io.ktor.client.request.patch
 import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
@@ -49,6 +51,17 @@ class ContactDataSource(private val httpClient: HttpClient) {
             ) {
                 contentType(ContentType.Application.Json)
                 setBody(createContactDTO)
+            }
+        }
+    }
+
+    suspend fun updateContact(contactId: String, updateContactDTO: UpdateContactDTO): Result<ApiResponse<ContactDTO>, DataError.Remote> {
+        return safeCall<ApiResponse<ContactDTO>> {
+            httpClient.patch(
+                urlString = "$BASE_URL/$contactId"
+            ) {
+                contentType(ContentType.Application.Json)
+                setBody(updateContactDTO)
             }
         }
     }
