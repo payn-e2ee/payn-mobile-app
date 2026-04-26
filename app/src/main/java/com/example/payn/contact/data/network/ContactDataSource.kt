@@ -26,6 +26,18 @@ class ContactDataSource(private val httpClient: HttpClient) {
         }
     }
 
+    suspend fun searchContacts(keyword: String): Result<ApiResponse<List<ContactDTO>>, DataError.Remote> {
+        return safeCall<ApiResponse<List<ContactDTO>>> {
+            httpClient.get(
+                urlString = "$BASE_URL/search"
+            ) {
+                url {
+                    parameters.append("keyword", keyword)
+                }
+            }
+        }
+    }
+
     suspend fun getContactById(contactId: String): Result<ApiResponse<ContactDTO>, DataError.Remote> {
         return safeCall<ApiResponse<ContactDTO>> {
             httpClient.get(

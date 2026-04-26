@@ -11,21 +11,51 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.*
 
 class ListContactsViewModel(
     private val contactRepository: ContactRepository
 ) : ViewModel() {
+    private val _searchQuery = MutableStateFlow("")
     private val _state = MutableStateFlow(ListContactsState())
     val state = _state
         .onStart {
             fetchContactsList()
+            observeSearchQuery()
         }
         .stateIn(
             viewModelScope,
             SharingStarted.WhileSubscribed(5000L),
             _state.value
         )
+
+    private fun observeSearchQuery() {
+        _searchQuery
+            .debounce(500L)
+            .distinctUntilChanged()
+            .onEach { query ->
+                if (query.isBlank()) {
+                    fetchContactsList()
+                } else {
+                    searchContacts(query)
+                }
+            }
+            .launchIn(viewModelScope)
+    }
+
+    private fun searchContacts(query: String) {
+        viewModelScope.launch {
+            contactRepository.searchContacts(query)
+                .onSuccess { response ->
+                    _state.update {
+                        it.copy(
+                            contacts = response.data.map { contact -> contact.toContact() }
+                        )
+                    }
+                }
+        }
+    }
 
     private fun fetchContactsList() {
         viewModelScope.launch {
@@ -96,5 +126,6 @@ class ListContactsViewModel(
 
     fun setSearchQuery(value: String) {
         _state.update { it.copy(searchQuery = value) }
+        _searchQuery.value = value
     }
 }
