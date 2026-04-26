@@ -44,6 +44,7 @@ import com.example.payn.ui.theme.Pink900
 import com.example.payn.ui.theme.Purple400
 import com.example.payn.ui.theme.Purple900
 import com.example.payn.ui.theme.White
+import com.example.payn.contact.presentation.components.AddContactModal
 
 @Composable
 fun ContactsScreen(
@@ -99,7 +100,8 @@ fun ContactsScreen(
             item {
                 GlassCard(
                     modifier = Modifier
-                        .fillMaxWidth()
+                        .fillMaxWidth(),
+                    onClick = { viewModel.toggleAddContactModal(true) }
                 ) {
                     Row(
                         modifier = Modifier.padding(16.dp),
@@ -144,6 +146,20 @@ fun ContactsScreen(
                 )
             }
         }
+
+        AddContactModal(
+            isOpen = state.isAddContactModalOpen,
+            onClose = { viewModel.toggleAddContactModal(false) },
+            firstName = state.newContactFirstName,
+            onFirstNameChange = viewModel::onFirstNameChange,
+            lastName = state.newContactLastName,
+            onLastNameChange = viewModel::onLastNameChange,
+            phoneNumber = state.newContactPhoneNumber,
+            onPhoneNumberChange = viewModel::onPhoneNumberChange,
+            onAddContact = viewModel::addContact,
+            isAdding = state.isAddingContact,
+            error = state.addContactError
+        )
     }
 }
 

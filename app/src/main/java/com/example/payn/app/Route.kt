@@ -4,6 +4,35 @@ import kotlinx.serialization.Serializable
 import androidx.compose.runtime.saveable.Saver
 import java.net.URI
 
+@Serializable
+sealed interface Route {
+    @Serializable
+    data object Welcome : Route
+
+    @Serializable
+    data object Chats : Route
+
+    @Serializable
+    data class Chat(val id: String?, val userId: String?) : Route
+
+    @Serializable
+    data object Contacts : Route
+
+    @Serializable
+    data class Contact(val id: String) : Route
+
+    @Serializable
+    data object Calls : Route
+
+    @Serializable
+    data object Settings : Route
+
+    @Serializable
+    data object Login : Route
+
+    @Serializable
+    data object Register : Route
+}
 
 val RouteSaver = Saver<Route, String>(
     save = { route ->
@@ -28,50 +57,25 @@ val RouteSaver = Saver<Route, String>(
             "settings" -> Route.Settings
             "login" -> Route.Login
             "register" -> Route.Register
-          else -> {
+            else -> {
                 val uri = URI(value)
-                val pathSegments = uri.path.split("/")
-                val params = parseQueryParams(uri.query)
+                val pathSegments = uri.path.split("/").filter { it.isNotEmpty() }
+                val params = parseQueryParams(uri.query ?: "")
 
-                when (pathSegments.first()) {
-                    "contact" -> Route.Contact(pathSegments[1])
+                when (pathSegments.getOrNull(0)) {
+                    "contact" -> {
+                        val id = pathSegments.getOrNull(1) ?: ""
+                        Route.Contact(id)
+                    }
                     "chat" -> Route.Chat(pathSegments.getOrNull(1), params["user_id"])
                     else -> Route.Welcome
                 }
+            }
         }
     }
 )
 
 fun parseQueryParams(query: String): Map<String, String> =
-    query.split("&").mapNotNull { it.split("=").takeIf { it.size == 2 }?.let { (k, v) -> k to v } }
-        .toMap()
-
-sealed interface Route {
-    @Serializable
-    data object Welcome : Route
-
-    @Serializable
-    data object Chats : Route
-
-    @Serializable
-    data class Chat(val id: String?, val userId: String?) : Route
-
-    @Serializable
-    data object Contacts : Route
-
-    @Serializable
-    data class Contact(val id: String) : Route
-
-
-    @Serializable
-    data object Calls : Route
-
-    @Serializable
-    data object Settings : Route
-
-    @Serializable
-    data object Login : Route
-
-    @Serializable
-    data object Register : Route
-}
+    if (query.isEmpty()) emptyMap() else query.split("&").mapNotNull { 
+        it.split("=").takeIf { it.size == 2 }?.let { (k, v) -> k to v } 
+    }.toMap()
