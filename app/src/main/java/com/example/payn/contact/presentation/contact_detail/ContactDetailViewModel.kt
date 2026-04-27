@@ -7,6 +7,7 @@ import androidx.navigation.toRoute
 import com.example.payn.app.Route
 import com.example.payn.contact.data.mappers.toContact
 import com.example.payn.contact.data.repository.ContactRepository
+import com.example.payn.contact.data.dto.UpdateContactDTO
 import com.example.payn.core.domain.onError
 import com.example.payn.core.domain.onSuccess
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -61,6 +62,59 @@ class ContactDetailViewModel(
                         it.copy(
                             isDeleting = false,
                             error = error::class.simpleName ?: "Unknown Error"
+                        ) 
+                    }
+                }
+        }
+    }
+
+    fun toggleEditModal(isOpen: Boolean) {
+        _state.update { 
+            it.copy(
+                isEditModalOpen = isOpen,
+                editFirstName = it.contact?.firstname ?: "",
+                editLastName = it.contact?.lastname ?: "",
+                updateError = null
+            ) 
+        }
+    }
+
+    fun onFirstNameChange(name: String) {
+        _state.update { it.copy(editFirstName = name) }
+    }
+
+    fun onLastNameChange(name: String) {
+        _state.update { it.copy(editLastName = name) }
+    }
+
+    fun updateContact() {
+        viewModelScope.launch {
+            val currentState = _state.value
+            _state.update { it.copy(isUpdating = true, updateError = null) }
+            
+            val updateDTO = UpdateContactDTO(
+                firstname = currentState.editFirstName,
+                lastname = currentState.editLastName
+            )
+            
+            contactRepository.updateContact(contactId, updateDTO)
+                .onSuccess { response ->
+                    val updatedContact = response.data.toContact()
+                    _state.update { 
+                        it.copy(
+                            isUpdating = false,
+                            isEditModalOpen = false,
+                            contact = updatedContact.copy(
+                                contactUser = updatedContact.contactUser ?: it.contact?.contactUser
+                            )
+                        ) 
+                    }
+                }
+                .onError { error ->
+                    _state.update { 
+                        it.copy(
+                            isUpdating = false,
+                            updateError = error::class.simpleName ?: "Failed to update contact"
                         ) 
                     }
                 }

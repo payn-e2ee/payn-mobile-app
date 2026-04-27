@@ -41,6 +41,7 @@ import com.composables.icons.lucide.Pencil
 import com.composables.icons.lucide.Phone
 import com.composables.icons.lucide.Trash2
 import com.example.payn.R
+import com.example.payn.contact.presentation.components.EditContactModal
 import com.example.payn.core.presentation.components.GlassCard
 import com.example.payn.ui.theme.Blue400
 import com.example.payn.ui.theme.Blue500
@@ -227,7 +228,8 @@ fun ContactDetailScreen(
 
                 Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                     GlassCard(
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth(),
+                        onClick = { viewModel.toggleEditModal(true) }
                     ) {
                         Row(
                             modifier = Modifier.padding(16.dp),
@@ -299,5 +301,17 @@ fun ContactDetailScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
         }
+
+        EditContactModal(
+            isOpen = state.isEditModalOpen,
+            onClose = { viewModel.toggleEditModal(false) },
+            firstName = state.editFirstName,
+            onFirstNameChange = viewModel::onFirstNameChange,
+            lastName = state.editLastName,
+            onLastNameChange = viewModel::onLastNameChange,
+            onUpdateContact = viewModel::updateContact,
+            isUpdating = state.isUpdating,
+            error = state.updateError
+        )
     }
 }
