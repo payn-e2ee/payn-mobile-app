@@ -17,9 +17,13 @@ import androidx.navigation.compose.rememberNavController
 import com.example.payn.app.components.BottomNav
 import com.example.payn.auth.presentation.login.LoginScreen
 import com.example.payn.auth.presentation.login.LoginViewModel
+import com.example.payn.auth.presentation.register.RegisterScreen
+import com.example.payn.auth.presentation.register.RegisterViewModel
 import com.example.payn.auth.presentation.welcome.WelcomeScreen
 import com.example.payn.auth.presentation.welcome.WelcomeViewModel
 import com.example.payn.call.presentation.CallsScreen
+import com.example.payn.contact.presentation.contact_detail.ContactDetailScreen
+import com.example.payn.contact.presentation.contact_detail.ContactDetailViewModel
 import com.example.payn.chat.presentation.chat_list.ChatListScreen
 import com.example.payn.chat.presentation.chat_list.ChatListViewModel
 import com.example.payn.chat.presentation.chat_detail.ChatDetailScreen
@@ -27,6 +31,7 @@ import com.example.payn.chat.presentation.chat_detail.ChatDetailViewModel
 import com.example.payn.contact.presentation.contact_list.ContactsScreen
 import com.example.payn.contact.presentation.contact_list.ListContactsViewModel
 import com.example.payn.settings.presentation.SettingsScreen
+import com.example.payn.settings.presentation.SettingsViewModel
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
@@ -57,6 +62,15 @@ fun AppNavHost(
             )
         }
 
+        composable<Route.Register> {
+            val viewModel = koinViewModel<RegisterViewModel>()
+
+            RegisterScreen(
+                viewModel = viewModel,
+                navController = navController
+            )
+        }
+
         composable<Route.Chats> {
             val viewModel = koinViewModel<ChatListViewModel>()
             ChatListScreen(
@@ -81,12 +95,24 @@ fun AppNavHost(
             )
         }
 
+        composable<Route.Contact> {
+            val viewModel = koinViewModel<ContactDetailViewModel>()
+            ContactDetailScreen(
+                viewModel = viewModel,
+                navController = navController
+            )
+        }
+
         composable<Route.Calls> {
             CallsScreen()
         }
 
         composable<Route.Settings> {
-            SettingsScreen()
+            val viewModel = koinViewModel<SettingsViewModel>()
+            SettingsScreen(
+                viewModel = viewModel,
+                navController = navController
+            )
         }
     }
 }

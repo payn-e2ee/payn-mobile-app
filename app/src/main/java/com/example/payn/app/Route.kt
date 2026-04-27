@@ -4,45 +4,7 @@ import kotlinx.serialization.Serializable
 import androidx.compose.runtime.saveable.Saver
 import java.net.URI
 
-
-val RouteSaver = Saver<Route, String>(
-    save = { route ->
-        when (route) {
-            is Route.Welcome -> "welcome"
-            is Route.Chats -> "chats"
-            is Route.Contacts -> "contacts"
-            is Route.Calls -> "calls"
-            is Route.Settings -> "settings"
-            is Route.Login -> "login"
-            is Route.Chat -> if (route.id != null) "chat/${route.id}" else "chat/init?user_id=${route.userId}"
-        }
-    },
-    restore = { value ->
-        when (value) {
-            "welcome" -> Route.Welcome
-            "chats" -> Route.Chats
-            "contacts" -> Route.Contacts
-            "calls" -> Route.Calls
-            "settings" -> Route.Settings
-            "login" -> Route.Login
-            else -> {
-                val uri = URI(value)
-                val pathSegments = uri.path.split("/")
-                val params = parseQueryParams(uri.query)
-
-                when (pathSegments.first()) {
-                    "chat" -> Route.Chat(pathSegments.getOrNull(1), params["user_id"])
-                    else -> Route.Welcome
-                }
-            }
-        }
-    }
-)
-
-fun parseQueryParams(query: String): Map<String, String> =
-    query.split("&").mapNotNull { it.split("=").takeIf { it.size == 2 }?.let { (k, v) -> k to v } }
-        .toMap()
-
+@Serializable
 sealed interface Route {
     @Serializable
     data object Welcome : Route
@@ -57,6 +19,9 @@ sealed interface Route {
     data object Contacts : Route
 
     @Serializable
+    data class Contact(val id: String) : Route
+
+    @Serializable
     data object Calls : Route
 
     @Serializable
@@ -64,4 +29,53 @@ sealed interface Route {
 
     @Serializable
     data object Login : Route
+
+    @Serializable
+    data object Register : Route
 }
+
+val RouteSaver = Saver<Route, String>(
+    save = { route ->
+        when (route) {
+            is Route.Welcome -> "welcome"
+            is Route.Chats -> "chats"
+            is Route.Contacts -> "contacts"
+            is Route.Calls -> "calls"
+            is Route.Settings -> "settings"
+            is Route.Login -> "login"
+            is Route.Chat -> if (route.id != null) "chat/${route.id}" else "chat/init?user_id=${route.userId}"
+            is Route.Register -> "register"
+            is Route.Contact -> "contact/${route.id}"
+        }
+    },
+    restore = { value ->
+        when (value) {
+            "welcome" -> Route.Welcome
+            "chats" -> Route.Chats
+            "contacts" -> Route.Contacts
+            "calls" -> Route.Calls
+            "settings" -> Route.Settings
+            "login" -> Route.Login
+            "register" -> Route.Register
+            else -> {
+                val uri = URI(value)
+                val pathSegments = uri.path.split("/").filter { it.isNotEmpty() }
+                val params = parseQueryParams(uri.query ?: "")
+
+                when (pathSegments.getOrNull(0)) {
+                    "contact" -> {
+                        val id = pathSegments.getOrNull(1) ?: ""
+                        Route.Contact(id)
+                    }
+                    "chat" -> Route.Chat(pathSegments.getOrNull(1), params["user_id"])
+                    else -> Route.Welcome
+                }
+            }
+        }
+    }
+)
+
+fun parseQueryParams(query: String): Map<String, String> =
+    if (query.isEmpty()) emptyMap() else query.split("&").mapNotNull { 
+        it.split("=").takeIf { it.size == 2 }?.let { (k, v) -> k to v } 
+    }.toMap()

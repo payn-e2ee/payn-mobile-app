@@ -3,6 +3,7 @@ package com.example.payn.di
 import com.example.payn.auth.data.network.AuthDataSource
 import com.example.payn.auth.data.repository.AuthRepository
 import com.example.payn.auth.presentation.login.LoginViewModel
+import com.example.payn.auth.presentation.register.RegisterViewModel
 import com.example.payn.auth.presentation.welcome.WelcomeViewModel
 import com.example.payn.chat.data.network.ChatDataSource
 import com.example.payn.chat.data.repository.ChatRepository
@@ -12,8 +13,10 @@ import com.example.payn.chat.presentation.chat_list.ChatListViewModel
 import com.example.payn.chat.presentation.chat_detail.ChatDetailViewModel
 import com.example.payn.contact.data.network.ContactDataSource
 import com.example.payn.contact.data.repository.ContactRepository
+import com.example.payn.contact.presentation.contact_detail.ContactDetailViewModel
 import com.example.payn.contact.presentation.contact_list.ListContactsViewModel
 import com.example.payn.core.data.AuthSessionManager
+import com.example.payn.settings.presentation.SettingsViewModel
 import com.example.payn.core.data.CryptoManager
 import com.example.payn.core.data.HttpClientFactory
 import com.example.payn.core.data.KeyValueStorage
@@ -61,7 +64,10 @@ val appModule = module {
 
     viewModelOf(::WelcomeViewModel)
     viewModelOf(::LoginViewModel)
+    viewModelOf(::RegisterViewModel)
     viewModelOf(::ChatListViewModel)
     viewModelOf(::ChatDetailViewModel)
     viewModelOf(::ListContactsViewModel)
+    viewModelOf(::ContactDetailViewModel)
+    viewModelOf(::SettingsViewModel)
 }
