@@ -14,6 +14,10 @@ class ContactRepository(
         return contactDataSource.listContacts()
     }
 
+    suspend fun searchContacts(keyword: String): Result<ApiResponse<List<ContactDTO>>, DataError> {
+        return contactDataSource.searchContacts(keyword)
+    }
+
     suspend fun getContactById(contactId: String): Result<ApiResponse<ContactDTO>, DataError> {
         return contactDataSource.getContactById(contactId)
     }
