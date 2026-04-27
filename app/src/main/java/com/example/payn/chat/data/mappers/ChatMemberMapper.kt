@@ -7,7 +7,9 @@ import com.example.payn.core.data.mappers.toUser
 fun ChatMemberDTO.toChatMember(): ChatMember {
     return ChatMember(
         id = id,
-        user = user.toUser(),
+        user = user?.toUser(),
+        chatId = chatId,
+        userId = userId,
         createdAt = createdAt
     )
 }

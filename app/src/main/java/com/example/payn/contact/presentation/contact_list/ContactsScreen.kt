@@ -28,6 +28,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import com.composables.icons.lucide.Lucide
 import com.composables.icons.lucide.UserPlus
+import com.example.payn.app.Route
 import com.example.payn.contact.presentation.components.ContactItem
 import com.example.payn.contact.presentation.components.SearchInput
 import com.example.payn.core.presentation.components.GlassCard
@@ -139,7 +140,24 @@ fun ContactsScreen(
                 ContactItem(
                     contact = contact,
                     onContactClick = { },
-                    onChatClick = { }
+                    onChatClick = {
+                        val chatId = contact.contactUser?.chatMembers?.firstOrNull()?.chatId
+                        if (chatId == null) {
+                            navController.navigate(
+                                Route.Chat(
+                                    id = null,
+                                    userId = contact.contactUserId,
+                                )
+                            )
+                        } else {
+                            navController.navigate(
+                                Route.Chat(
+                                    id = chatId,
+                                    userId = null,
+                                )
+                            )
+                        }
+                    }
                 )
             }
         }

@@ -2,6 +2,7 @@ package com.example.payn
 
 import android.app.Application
 import com.example.payn.core.data.AppDatabase
+import com.example.payn.core.data.AuthSessionManager
 import com.example.payn.core.data.CryptoManager
 import com.example.payn.core.data.KeyValueStorage
 import com.example.payn.core.domain.IdentityKeysEntity
@@ -36,6 +37,7 @@ class MainApplication : Application() {
         val cryptoManager = koin.get<CryptoManager>()
         val httpClient = koin.get<HttpClient>()
         val keyValueStorage = koin.get<KeyValueStorage>()
+        val authSessionManager = koin.get<AuthSessionManager>()
 
         httpClient.requestPipeline.intercept(HttpRequestPipeline.State) {
             val accessToken = keyValueStorage.getString("access_token").firstOrNull()
@@ -47,6 +49,8 @@ class MainApplication : Application() {
         }
 
         runBlocking {
+            authSessionManager.initializeSession()
+
             val identityKey = appDatabase.identityKeysDao().getIdentityKey()
             if (identityKey == null) {
                 val identityKeyPair = cryptoManager.generateX25519KeyPair()

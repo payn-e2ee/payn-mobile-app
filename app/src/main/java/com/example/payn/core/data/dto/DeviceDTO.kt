@@ -1,19 +1,17 @@
-package com.example.payn.chat.data.dto
+package com.example.payn.core.data.dto
 
-import com.example.payn.core.data.dto.UserDTO
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class ChatMemberDTO(
+data class DeviceDTO(
     val id: String,
 
     @SerialName("user_id")
     val userId: String,
-    val user: UserDTO? = null,
 
-    @SerialName("chat_id")
-    val chatId: String,
+    @SerialName("identity_key")
+    val identityKey: String,
 
     @SerialName("created_at")
     val createdAt: String

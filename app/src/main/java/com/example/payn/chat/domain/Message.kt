@@ -7,5 +7,5 @@ data class Message(
     val deviceId: String,
     val status: String,
     val createdAt: String,
-    val messageDeliveries: List<MessageDelivery>
+    var messageDeliveries: List<MessageDelivery>
 )

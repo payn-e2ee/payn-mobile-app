@@ -20,8 +20,8 @@ import com.example.payn.auth.presentation.login.LoginViewModel
 import com.example.payn.auth.presentation.welcome.WelcomeScreen
 import com.example.payn.auth.presentation.welcome.WelcomeViewModel
 import com.example.payn.call.presentation.CallsScreen
-import com.example.payn.chat.presentation.ChatsScreen
-import com.example.payn.chat.presentation.ListChatsViewModel
+import com.example.payn.chat.presentation.chat_list.ChatListScreen
+import com.example.payn.chat.presentation.chat_list.ChatListViewModel
 import com.example.payn.chat.presentation.chat_detail.ChatDetailScreen
 import com.example.payn.chat.presentation.chat_detail.ChatDetailViewModel
 import com.example.payn.contact.presentation.contact_list.ContactsScreen
@@ -58,8 +58,8 @@ fun AppNavHost(
         }
 
         composable<Route.Chats> {
-            val viewModel = koinViewModel<ListChatsViewModel>()
-            ChatsScreen(
+            val viewModel = koinViewModel<ChatListViewModel>()
+            ChatListScreen(
                 viewModel = viewModel,
                 navController = navController
             )

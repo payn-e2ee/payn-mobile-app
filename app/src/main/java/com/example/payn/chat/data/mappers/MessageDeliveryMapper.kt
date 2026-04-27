@@ -7,13 +7,16 @@ fun MessageDeliveryDTO.toMessageDelivery(): MessageDelivery {
     return MessageDelivery(
         id = id,
         messageId = messageId,
-        deviceId = deviceId,
-        userId = userId,
+        senderDeviceId = senderDeviceId,
+        senderUserId = senderUserId,
+        recipientDeviceId = recipientDeviceId,
+        recipientUserId = recipientUserId,
         ciphertext = ciphertext,
         authTag = authTag,
         ephemeralPublicKey = ephemeralPublicKey,
         type = type,
         attachmentId = attachmentId,
+        messageCounter = messageCounter,
         createdAt = createdAt
     )
 }

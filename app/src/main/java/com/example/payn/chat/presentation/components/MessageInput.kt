@@ -25,28 +25,26 @@ import androidx.compose.ui.unit.dp
 import com.composables.icons.lucide.Lucide
 import com.composables.icons.lucide.Mic
 import com.composables.icons.lucide.Paperclip
-import com.example.payn.chat.domain.Message
 import com.example.payn.core.presentation.components.GlassCard
 import com.example.payn.ui.theme.Blue500
 import com.example.payn.ui.theme.White
 import com.example.payn.ui.theme.White30
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
 
 @Preview
 @Composable
 fun MessageInputPreview() {
     MessageInput(
         value = "",
-        onValueChange = {}
+        onValueChange = {},
+        sendMessage = {}
     )
 }
 
 @Composable
 fun MessageInput(
     value: String,
-    onValueChange: (value: String) -> Unit
+    onValueChange: (value: String) -> Unit,
+    sendMessage: () -> Unit
 ) {
     Box(
         modifier = Modifier
@@ -91,21 +89,7 @@ fun MessageInput(
                             .clip(CircleShape)
                             .background(Blue500)
                             .clickable {
-                                val time = SimpleDateFormat("h:mm a", Locale.US)
-                                    .format(Date())
-
-                                val newMsg = Message(
-                                    id = System.currentTimeMillis().toString(),
-                                    userId = "",
-                                    chatId = "",
-                                    status = "",
-                                    deviceId = "",
-                                    createdAt = "",
-                                    messageDeliveries = emptyList()
-                                )
-
-//                                messages = messages + newMsg
-                                onValueChange("")
+                                sendMessage()
                             },
                         contentAlignment = Alignment.Center
                     ) {
@@ -114,7 +98,7 @@ fun MessageInput(
                 } else {
                     Icon(
                         imageVector = Lucide.Mic,
-                        contentDescription = "mic"
+                        contentDescription = "mic",
                     )
                 }
             }
