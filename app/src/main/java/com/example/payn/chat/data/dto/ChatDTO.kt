@@ -6,7 +6,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class ChatDTO(
     val id: String,
-    val chatMembers: List<ChatMemberDTO>,
+    val chatMembers: List<ChatMemberDTO>? = null,
     val messages: List<MessageDTO>? = null,
     @SerialName("created_at")
     val createdAt: String

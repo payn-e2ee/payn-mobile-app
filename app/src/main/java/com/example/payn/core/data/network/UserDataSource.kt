@@ -19,4 +19,12 @@ class UserDataSource(private val httpClient: HttpClient) {
             )
         }
     }
+
+    suspend fun getUserById(userId: String): Result<ApiResponse<UserDTO>, DataError.Remote> {
+        return safeCall {
+            httpClient.get(
+                urlString = "$BASE_URL/$userId"
+            )
+        }
+    }
 }

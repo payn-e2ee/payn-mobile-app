@@ -1,12 +1,10 @@
 package com.example.payn.auth.presentation.login
 
-import android.util.Log
-import androidx.compose.runtime.Composable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.payn.auth.data.repository.AuthRepository
 import com.example.payn.core.data.AppDatabase
-import com.example.payn.core.data.CryptoManager
+import com.example.payn.core.data.AuthSessionManager
 import com.example.payn.core.data.KeyValueStorage
 import com.example.payn.core.domain.DataError
 import com.example.payn.core.domain.FormErrors
@@ -17,12 +15,12 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlin.collections.joinToString
 
 class LoginViewModel(
     private val appDatabase: AppDatabase,
     private val authRepository: AuthRepository,
-    private val keyValueStorage: KeyValueStorage
+    private val keyValueStorage: KeyValueStorage,
+    private val authSessionManager: AuthSessionManager
 ) : ViewModel() {
     private val _state = MutableStateFlow(LoginFormState())
     val state = _state
@@ -68,11 +66,10 @@ class LoginViewModel(
                 state.value.username,
                 state.value.password,
                 identityKey
-            ).onSuccess { response ->
-                response.data?.let {
-                    keyValueStorage.putString("access_token", it.accessToken)
-                    onSuccess()
-                }
+            ).onSuccess {
+                keyValueStorage.putString("access_token", it.data.accessToken)
+                authSessionManager.initializeSession()
+                onSuccess()
             }.onError { err ->
                 if (err is DataError.Remote.BAD_REQUEST) {
                     onError(err.message)

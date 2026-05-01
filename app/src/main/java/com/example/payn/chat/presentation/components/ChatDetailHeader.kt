@@ -25,9 +25,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
-import com.composables.icons.lucide.ArrowLeft
 import com.composables.icons.lucide.Lucide
-import com.composables.icons.lucide.PhoneCall
+import com.composables.icons.lucide.ArrowLeft
+import com.composables.icons.lucide.Phone
 import com.composables.icons.lucide.Video
 import com.example.payn.core.domain.models.User
 import com.example.payn.core.presentation.components.GlassCard
@@ -116,7 +116,7 @@ fun ChatDetailHeader(
                         Modifier.size(18.dp),
                     )
                     Icon(
-                        imageVector = Lucide.PhoneCall,
+                        imageVector = Lucide.Phone,
                         contentDescription = "phone",
                         Modifier.size(18.dp),
                     )

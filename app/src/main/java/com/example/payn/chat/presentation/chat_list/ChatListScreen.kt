@@ -1,4 +1,4 @@
-package com.example.payn.chat.presentation
+package com.example.payn.chat.presentation.chat_list
 
 import android.os.Build
 import androidx.compose.foundation.Image
@@ -21,22 +21,22 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
-import coil3.compose.rememberAsyncImagePainter
-import coil3.request.ImageRequest
-import coil3.size.Size
 import com.example.payn.R
 import com.example.payn.app.Route
 import com.example.payn.chat.presentation.components.SearchInput
@@ -49,13 +49,13 @@ import com.example.payn.ui.theme.Pink400
 import com.example.payn.ui.theme.Purple400
 import com.example.payn.ui.theme.White
 import org.ocpsoft.prettytime.PrettyTime
-import java.util.Date
 import java.time.Instant
+import java.util.Date
 
 
 @Composable
-fun ChatsScreen(
-    viewModel: ListChatsViewModel,
+fun ChatListScreen(
+    viewModel: ChatListViewModel,
     navController: NavHostController
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -102,10 +102,23 @@ fun ChatsScreen(
                 modifier = Modifier.fillMaxSize()
             ) {
                 items(state.chats, key = { it.id }) { chat ->
-                    val otherMember = chat.chatMembers.first { it.user.id != "" }
-                    val chatName = "${otherMember.user.firstname} ${otherMember.user.lastname}"
+                    val otherMember = chat.chatMembers!!.first { it.user?.id != "" }
+                    val chatName = "${otherMember.user?.firstname} ${otherMember.user?.lastname}"
                     val message = chat.messages?.firstOrNull()
                     val messageDelivery = message?.messageDeliveries?.first()
+
+                    var content by remember { mutableStateOf("Loading...") }
+                    LaunchedEffect(messageDelivery) {
+                        if (messageDelivery != null) {
+                            content = viewModel.decryptMessage(
+                                ciphertext = messageDelivery.ciphertext,
+                                ephemeralPublicKey = messageDelivery.ephemeralPublicKey,
+                                messageCounter = messageDelivery.messageCounter,
+                                userId = messageDelivery.senderUserId,
+                                deviceId = messageDelivery.senderDeviceId
+                            )
+                        }
+                    }
 
                     GlassCard(
                         modifier = Modifier
@@ -184,8 +197,7 @@ fun ChatsScreen(
                                         horizontalArrangement = Arrangement.SpaceBetween
                                     ) {
                                         Text(
-                                            // FIXME: Decrypt the message before viewing
-                                            text = messageDelivery.ciphertext,
+                                            text = content,
                                             fontSize = 14.sp,
                                             color = Gray600,
                                             maxLines = 1

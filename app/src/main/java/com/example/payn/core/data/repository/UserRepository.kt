@@ -12,4 +12,8 @@ class UserRepository(
     suspend fun getCurrentUser(): Result<ApiResponse<UserDTO>, DataError.Remote> {
         return userDataSource.getCurrentUser()
     }
+
+    suspend fun getUserById(userId: String): Result<ApiResponse<UserDTO>, DataError.Remote> {
+        return userDataSource.getUserById(userId)
+    }
 }

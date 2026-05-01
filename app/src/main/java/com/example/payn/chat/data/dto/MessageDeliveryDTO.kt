@@ -10,11 +10,17 @@ data class MessageDeliveryDTO(
     @SerialName("message_id")
     val messageId: String,
 
-    @SerialName("device_id")
-    val deviceId: String,
+    @SerialName("sender_device_id")
+    val senderDeviceId: String,
 
-    @SerialName("user_id")
-    val userId: String,
+    @SerialName("sender_user_id")
+    val senderUserId: String,
+
+    @SerialName("recipient_device_id")
+    val recipientDeviceId: String,
+
+    @SerialName("recipient_user_id")
+    val recipientUserId: String,
 
     val ciphertext: String,
 
@@ -28,6 +34,12 @@ data class MessageDeliveryDTO(
 
     @SerialName("attachment_id")
     val attachmentId: String,
+
+    @SerialName("message_counter")
+    val messageCounter: Int,
+
+    @SerialName("identity_key")
+    val identityKey: String,
 
     @SerialName("created_at")
     val createdAt: String

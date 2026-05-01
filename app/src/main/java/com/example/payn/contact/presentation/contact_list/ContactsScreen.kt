@@ -142,7 +142,24 @@ fun ContactsScreen(
                 ContactItem(
                     contact = contact,
                     onContactClick = { navController.navigate(Route.Contact(contact.id)) },
-                    onChatClick = { }
+                    onChatClick = {
+                        val chatId = contact.contactUser?.chatMembers?.firstOrNull()?.chatId
+                        if (chatId == null) {
+                            navController.navigate(
+                                Route.Chat(
+                                    id = null,
+                                    userId = contact.contactUserId,
+                                )
+                            )
+                        } else {
+                            navController.navigate(
+                                Route.Chat(
+                                    id = chatId,
+                                    userId = null,
+                                )
+                            )
+                        }
+                    }
                 )
             }
         }

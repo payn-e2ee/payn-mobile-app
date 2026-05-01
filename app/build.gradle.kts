@@ -39,6 +39,15 @@ android {
     buildFeatures {
         compose = true
     }
+
+    packaging {
+        resources {
+            excludes += arrayOf(
+                "/META-INF/INDEX.LIST",
+                "/META-INF/io.netty.versions.properties"
+            )
+        }
+    }
 }
 kotlin {
     compilerOptions {
@@ -46,6 +55,9 @@ kotlin {
     }
 }
 dependencies {
+    implementation("com.hivemq:hivemq-mqtt-client:1.3.3")
+    implementation("io.netty:netty-codec-http:4.1.99.Final")
+
     implementation(libs.prettytime)
 
     implementation(libs.coil.compose)
