@@ -32,6 +32,7 @@ import com.example.payn.contact.presentation.contact_list.ContactsScreen
 import com.example.payn.contact.presentation.contact_list.ListContactsViewModel
 import com.example.payn.settings.presentation.SettingsScreen
 import com.example.payn.settings.presentation.SettingsViewModel
+import com.example.payn.settings.presentation.NotificationsScreen
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
@@ -111,6 +112,12 @@ fun AppNavHost(
             val viewModel = koinViewModel<SettingsViewModel>()
             SettingsScreen(
                 viewModel = viewModel,
+                navController = navController
+            )
+        }
+
+        composable<Route.Notifications> {
+            NotificationsScreen(
                 navController = navController
             )
         }
