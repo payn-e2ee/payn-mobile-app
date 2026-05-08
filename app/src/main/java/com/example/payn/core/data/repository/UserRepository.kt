@@ -16,4 +16,8 @@ class UserRepository(
     suspend fun getUserById(userId: String): Result<ApiResponse<UserDTO>, DataError.Remote> {
         return userDataSource.getUserById(userId)
     }
+
+    suspend fun updateFcmToken(token: String): Result<ApiResponse<Unit>, DataError.Remote> {
+        return userDataSource.updateFcmToken(token)
+    }
 }
