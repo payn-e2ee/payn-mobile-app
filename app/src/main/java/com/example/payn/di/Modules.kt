@@ -24,6 +24,7 @@ import com.example.payn.core.data.SecureDatabaseFactory
 import com.example.payn.core.data.network.MqttWebSocketClient
 import com.example.payn.core.data.network.UserDataSource
 import com.example.payn.core.data.repository.UserRepository
+import com.example.payn.core.data.PaynNotificationManager
 import io.ktor.client.engine.HttpClientEngine
 import io.ktor.client.engine.okhttp.OkHttp
 import kotlinx.coroutines.runBlocking
@@ -60,6 +61,9 @@ val appModule = module {
     }
     single {
         KeyValueStorage(androidApplication())
+    }
+    single {
+        PaynNotificationManager(androidApplication())
     }
 
     viewModelOf(::WelcomeViewModel)
