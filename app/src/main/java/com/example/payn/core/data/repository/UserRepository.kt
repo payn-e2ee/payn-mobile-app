@@ -1,5 +1,6 @@
 package com.example.payn.core.data.repository
 
+import com.example.payn.core.data.dto.UpdateUserFormDTO
 import com.example.payn.core.data.dto.UserDTO
 import com.example.payn.core.data.network.UserDataSource
 import com.example.payn.core.domain.ApiResponse
@@ -19,5 +20,9 @@ class UserRepository(
 
     suspend fun updateFcmToken(token: String): Result<ApiResponse<Unit>, DataError.Remote> {
         return userDataSource.updateFcmToken(token)
+    }
+
+    suspend fun updateCurrentUser(updateUserFormDTO: UpdateUserFormDTO): Result<ApiResponse<UserDTO>, DataError.Remote> {
+        return userDataSource.updateCurrentUser(updateUserFormDTO)
     }
 }

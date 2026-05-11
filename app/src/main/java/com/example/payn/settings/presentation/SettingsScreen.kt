@@ -24,11 +24,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
-import com.composables.icons.lucide.Lucide
 import com.composables.icons.lucide.LogOut
 import com.composables.icons.lucide.Bell
+import com.composables.icons.lucide.Lucide
 import com.example.payn.app.Route
 import com.example.payn.core.presentation.components.GlassCard
+import com.example.payn.settings.presentation.components.UserProfileHeader
 import com.example.payn.ui.theme.Blue400
 import com.example.payn.ui.theme.Blue500
 import com.example.payn.ui.theme.Pink400
@@ -112,6 +113,10 @@ fun SettingsScreen(
                     )
                 }
             }
+            UserProfileHeader(
+                user = viewModel.currentUser,
+                onEdit = { navController.navigate(Route.EditProfile) }
+            )
 
             // Logout Button
             GlassCard(

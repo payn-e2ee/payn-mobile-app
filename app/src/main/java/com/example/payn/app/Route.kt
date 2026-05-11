@@ -35,6 +35,9 @@ sealed interface Route {
 
     @Serializable
     data object Notifications : Route
+
+    @Serializable
+    data object EditProfile : Route
 }
 
 val RouteSaver = Saver<Route, String>(
@@ -50,6 +53,7 @@ val RouteSaver = Saver<Route, String>(
             is Route.Register -> "register"
             is Route.Contact -> "contact/${route.id}"
             is Route.Notifications -> "notifications"
+            is Route.EditProfile -> "edit-profile"
         }
     },
     restore = { value ->
@@ -62,6 +66,7 @@ val RouteSaver = Saver<Route, String>(
             "login" -> Route.Login
             "register" -> Route.Register
             "notifications" -> Route.Notifications
+            "edit-profile" -> Route.EditProfile
             else -> {
                 val uri = URI(value)
                 val pathSegments = uri.path.split("/").filter { it.isNotEmpty() }
