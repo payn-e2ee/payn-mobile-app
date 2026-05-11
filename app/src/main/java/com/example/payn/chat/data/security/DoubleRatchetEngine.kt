@@ -2,8 +2,6 @@ package com.example.payn.chat.data.security
 
 import android.util.Base64
 import android.util.Log
-import com.example.payn.chat.data.dto.MessageFrameDTO
-import com.example.payn.chat.data.dto.MessageHeaderDTO
 import com.example.payn.chat.domain.RatchetEpoch
 import com.example.payn.core.data.AppDatabase
 import com.example.payn.core.data.CryptoManager
@@ -17,15 +15,10 @@ class DoubleRatchetEngine(
     val cryptoManager: CryptoManager
 ) {
     suspend fun encryptMessage(
-        content: String,
-        userId: String,
-        chatId: String,
-        deviceId: String,
+        content: ByteArray,
         remoteDeviceId: String,
-        recipientUserId: String,
         remoteIdentityKey: String,
-        localIdentityKey: String
-    ): MessageFrameDTO {
+    ): EncryptedMessage {
         var ratchetStateEntity =
             appDatabase.ratchetStateDao().getRatchetStateByDeviceId(remoteDeviceId)
         if (ratchetStateEntity == null) {
@@ -43,25 +36,15 @@ class DoubleRatchetEngine(
             sendMessageCounter = ratchetStateEntity.sendMessageCounter
         )
 
-        return MessageFrameDTO(
-            header = MessageHeaderDTO(
-                senderIdentityKey = localIdentityKey,
-                senderEphemeralPublicKey = ratchetStateEntity.localSendEphemeralPublicKey,
-                messageCounter = ratchetStateEntity.sendMessageCounter,
-                chatId = chatId,
-                senderUserId = userId,
-                senderDeviceId = deviceId,
-                recipientUserId = recipientUserId,
-                recipientDeviceId = remoteDeviceId,
-                messageId = "", // Note: Will be filled by the server
-            ),
-            ciphertext = encodeToBase64(ciphertext),
-            authTag = ""
+        return EncryptedMessage(
+            ciphertext = ciphertext,
+            ephemeralPublicKey = ratchetStateEntity.localSendEphemeralPublicKey,
+            messageCounter = ratchetStateEntity.sendMessageCounter,
         )
     }
 
     suspend fun decryptMessage(
-        ciphertext: String,
+        ciphertext: ByteArray,
         remoteEphemeralPublicKey: String,
         remoteDeviceId: String,
         messageCounter: Int
@@ -123,7 +106,7 @@ class DoubleRatchetEngine(
     }
 
     suspend fun decryptStateless(
-        ciphertext: String,
+        ciphertext: ByteArray,
         ephemeralPublicKey: String,
         messageCounter: Int,
         isFromMe: Boolean
@@ -337,7 +320,7 @@ class DoubleRatchetEngine(
     }
 
     private suspend fun encryptAndAdvanceSendChain(
-        content: String,
+        content: ByteArray,
         remoteDeviceId: String,
         sendChainKey: String,
         sendMessageCounter: Int,
@@ -355,7 +338,7 @@ class DoubleRatchetEngine(
         log("messageKey=${encodeToBase64(messageKey)}")
 
         val ciphertext = cryptoManager.encryptWithKey(
-            data = content.toByteArray(),
+            data = content,
             key = messageKey
         )
 
@@ -373,7 +356,7 @@ class DoubleRatchetEngine(
     }
 
     private suspend fun decryptAndAdvanceReceiveChain(
-        ciphertext: String,
+        ciphertext: ByteArray,
         remoteDeviceId: String,
         receiveChainKey: String,
         receiveMessageCounter: Int
@@ -391,7 +374,7 @@ class DoubleRatchetEngine(
         log("messageKey=${encodeToBase64(messageKey)}")
 
         val plaintext = cryptoManager.decryptWithKey(
-            data = decodeFromBase64(ciphertext),
+            data = ciphertext,
             key = messageKey
         )
 
@@ -407,7 +390,7 @@ class DoubleRatchetEngine(
     }
 
     private fun decryptAtCounter(
-        ciphertext: String,
+        ciphertext: ByteArray,
         epochReceiveChainKey: String,
         messageCounter: Int
     ): ByteArray {
@@ -438,7 +421,7 @@ class DoubleRatchetEngine(
         val messageKey = newChainKeyAndMessageKey.sliceArray(32 until 64)
 
         val plaintext = cryptoManager.decryptWithKey(
-            data = decodeFromBase64(ciphertext),
+            data = ciphertext,
             key = messageKey
         )
 

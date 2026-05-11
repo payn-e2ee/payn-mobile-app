@@ -1,5 +1,6 @@
 package com.example.payn.chat.data.dto
 
+import com.example.payn.core.data.dto.AttachmentDTO
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -30,10 +31,10 @@ data class MessageDeliveryDTO(
     @SerialName("ephemeral_public_key")
     val ephemeralPublicKey: String,
 
-    val type: String,
+    val type: MessageTypeDTO,
 
     @SerialName("attachment_id")
-    val attachmentId: String,
+    val attachmentId: String? = null,
 
     @SerialName("message_counter")
     val messageCounter: Int,
@@ -42,5 +43,7 @@ data class MessageDeliveryDTO(
     val identityKey: String,
 
     @SerialName("created_at")
-    val createdAt: String
+    val createdAt: String,
+
+    val attachment: AttachmentDTO? = null,
 )

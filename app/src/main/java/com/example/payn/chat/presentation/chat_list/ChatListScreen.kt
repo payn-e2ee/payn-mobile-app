@@ -39,6 +39,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import com.example.payn.R
 import com.example.payn.app.Route
+import com.example.payn.chat.domain.MessageType
 import com.example.payn.chat.presentation.components.SearchInput
 import com.example.payn.core.presentation.components.GlassCard
 import com.example.payn.ui.theme.Blue400
@@ -110,13 +111,20 @@ fun ChatListScreen(
                     var content by remember { mutableStateOf("Loading...") }
                     LaunchedEffect(messageDelivery) {
                         if (messageDelivery != null) {
-                            content = viewModel.decryptMessage(
-                                ciphertext = messageDelivery.ciphertext,
-                                ephemeralPublicKey = messageDelivery.ephemeralPublicKey,
-                                messageCounter = messageDelivery.messageCounter,
-                                userId = messageDelivery.senderUserId,
-                                deviceId = messageDelivery.senderDeviceId
-                            )
+                            content = when (messageDelivery.type) {
+                                MessageType.TEXT -> viewModel.decryptMessage(
+                                    ciphertext = messageDelivery.ciphertext,
+                                    ephemeralPublicKey = messageDelivery.ephemeralPublicKey,
+                                    messageCounter = messageDelivery.messageCounter,
+                                    userId = messageDelivery.senderUserId,
+                                    deviceId = messageDelivery.senderDeviceId
+                                )
+
+                                MessageType.IMAGE -> "Image"
+                                MessageType.VOICE -> "Voice"
+                                MessageType.FILE -> "File"
+                                MessageType.VIDEO -> "Video"
+                            }
                         }
                     }
 

@@ -1,5 +1,7 @@
 package com.example.payn.chat.domain
 
+import com.example.payn.core.domain.models.Attachment
+
 data class MessageDelivery(
     val id: String,
     val messageId: String,
@@ -11,7 +13,9 @@ data class MessageDelivery(
     val authTag: String,
     val ephemeralPublicKey: String,
     val messageCounter: Int,
-    val type: String,
-    val attachmentId: String,
-    val createdAt: String
+    val type: MessageType,
+    val attachmentId: String? = null,
+    val createdAt: String,
+
+    var attachment: Attachment? = null,
 )
