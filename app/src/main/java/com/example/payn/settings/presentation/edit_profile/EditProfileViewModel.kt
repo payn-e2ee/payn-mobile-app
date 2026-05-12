@@ -3,8 +3,10 @@ package com.example.payn.settings.presentation.edit_profile
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.payn.core.data.AuthSessionManager
+import com.example.payn.core.data.FileManager
 import com.example.payn.core.data.dto.UpdateUserFormDTO
 import com.example.payn.core.data.repository.UserRepository
+import com.example.payn.core.domain.ApiResponse
 import com.example.payn.core.domain.DataError
 import com.example.payn.core.domain.FormErrors
 import com.example.payn.core.domain.onError
@@ -18,7 +20,8 @@ import kotlinx.coroutines.launch
 
 class EditProfileViewModel(
     private val userRepository: UserRepository,
-    private val authSessionManager: AuthSessionManager
+    private val authSessionManager: AuthSessionManager,
+    private val fileManager: FileManager
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(EditProfileState())
@@ -41,8 +44,17 @@ class EditProfileViewModel(
                     lastname = user.lastname,
                     username = user.username,
                     phoneNumber = user.phoneNumber,
-                    profileImage = ""
+                    profileImageId = user.profileImageId
                 )
+            }
+        }
+    }
+
+    fun onImageSelected(uri: android.net.Uri) {
+        val bytes = fileManager.readBytesFromUri(uri)
+        if (bytes != null) {
+            _state.update {
+                it.copy(profileImageBytes = bytes)
             }
         }
     }
@@ -80,23 +92,31 @@ class EditProfileViewModel(
 
     fun onSave(onSuccess: () -> Unit, onError: (message: String) -> Unit) {
         viewModelScope.launch {
+            _state.update { it.copy(isLoading = true) }
+
             userRepository.updateCurrentUser(
-                UpdateUserFormDTO(
+                updateUserFormDTO = UpdateUserFormDTO(
                     username = _state.value.username,
                     firstname = _state.value.firstname,
                     lastname = _state.value.lastname,
-                )
+                ),
+                profileImageBytes = _state.value.profileImageBytes
             ).onSuccess {
                 authSessionManager.initializeSession()
+                _state.update { it.copy(isLoading = false, profileImageBytes = null) }
                 onSuccess()
             }.onError { err ->
-                if (err is DataError.Remote.BAD_REQUEST) {
-                    onError(err.message)
-                    if (err.formErrors != null) {
-                        setFieldErrors(err.formErrors)
+                _state.update { it.copy(isLoading = false) }
+                when (err) {
+                    is DataError.Remote.BAD_REQUEST -> {
+                        onError(err.message)
+                        if (err.formErrors != null) {
+                            setFieldErrors(err.formErrors)
+                        }
                     }
-                } else {
-                    onError("Something went wrong")
+                    DataError.Remote.UNAUTHORIZED -> onError("Session expired. Please login again.")
+                    DataError.Remote.FORBIDDEN -> onError("You don't have permission to do this.")
+                    else -> onError("Something went wrong")
                 }
             }
         }

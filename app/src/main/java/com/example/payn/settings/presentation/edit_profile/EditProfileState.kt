@@ -11,6 +11,8 @@ data class EditProfileState(
     var usernameFieldError: String = "",
 
     val profileImage: String = "",
+    val profileImageId: String? = null,
+    val profileImageBytes: ByteArray? = null,
 
     val phoneNumber: String = "",
 
