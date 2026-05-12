@@ -1,12 +1,13 @@
 package com.example.payn.chat.data.dto
 
+import com.example.payn.core.data.dto.AttachmentDTO
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
 data class MessageHeaderDTO(
     @SerialName("chat_id")
-    val chatId: String,
+    var chatId: String,
 
     @SerialName("sender_user_id")
     val senderUserId: String,
@@ -30,5 +31,10 @@ data class MessageHeaderDTO(
     val senderEphemeralPublicKey: String,
 
     @SerialName("message_counter")
-    val messageCounter: Int
+    val messageCounter: Int,
+
+    val attachment: AttachmentDTO?,
+
+    @SerialName("message_type")
+    val messageType: MessageTypeDTO,
 )

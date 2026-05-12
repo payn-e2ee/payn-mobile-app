@@ -1,38 +1,46 @@
 package com.example.payn.chat.presentation.components
 
+import android.util.Base64
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewModelScope
+import coil3.compose.AsyncImage
+import com.composables.icons.lucide.Download
+import com.composables.icons.lucide.Lucide
+import com.composables.icons.lucide.X
 import com.example.payn.chat.domain.ChatMessage
+import com.example.payn.chat.domain.MessageType
 import com.example.payn.chat.presentation.chat_detail.ChatDetailViewModel
+import com.example.payn.core.data.mappers.toUri
 import com.example.payn.core.domain.models.User
-import com.example.payn.ui.theme.Blue500
-import com.example.payn.ui.theme.Gray600
-import com.example.payn.ui.theme.Gray900
-import com.example.payn.ui.theme.White
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Locale
@@ -45,6 +53,9 @@ fun MessagesBox(
     currentUser: User,
     modifier: Modifier
 ) {
+    val state by viewModel.state.collectAsStateWithLifecycle()
+
+    val context = LocalContext.current
     val listState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
 
@@ -82,54 +93,153 @@ fun MessagesBox(
         ) {
         items(messages, key = { it.id }) { message ->
             val isMe = message.userId == currentUser.id
+            var isLoading by remember { mutableStateOf(true) }
+            var content by remember { mutableStateOf("".toByteArray()) }
+
+            LaunchedEffect(message) {
+                content = when (message.messageType) {
+                    MessageType.TEXT ->
+                        viewModel.decryptMessage(
+                            ciphertext = Base64.decode(message.ciphertext, Base64.DEFAULT),
+                            ephemeralPublicKey = message.ephemeralPublicKey,
+                            messageCounter = message.messageCounter,
+                            userId = message.userId,
+                            deviceId = message.deviceId,
+                        )
+
+                    MessageType.IMAGE, MessageType.VOICE, MessageType.VIDEO -> viewModel.decryptMessage(
+                        ciphertext = viewModel.getAttachmentFileBytes(message.attachment!!.id),
+                        ephemeralPublicKey = message.ephemeralPublicKey,
+                        messageCounter = message.messageCounter,
+                        userId = message.userId,
+                        deviceId = message.deviceId,
+                    )
+
+                    else -> "".toByteArray()
+                }
+                isLoading = false
+            }
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = if (isMe) Arrangement.End else Arrangement.Start
             ) {
+                when (message.messageType) {
+                    MessageType.TEXT -> TextMessage(
+                        content = content,
+                        isMe = isMe,
+                        createdAt = message.createdAt,
+                    )
 
-                Box(
-                    modifier = Modifier
-                        .widthIn(max = 280.dp)
-                        .clip(RoundedCornerShape(24.dp))
-                        .then(
-                            if (isMe) {
-                                Modifier.background(Blue500)
-                            } else {
-                                Modifier
-                                    .background(White.copy(alpha = 0.7f))
-                            }
-                        )
-                        .padding(12.dp)
-                ) {
+                    MessageType.IMAGE -> ImageMessage(
+                        content = content,
+                        isMe = isMe,
+                        createdAt = message.createdAt,
+                        isLoading = isLoading,
+                        showImageOnFullScreen = { viewModel.showImageOnFullScreen(it) },
+                    )
 
-                    Column {
-                        Text(
-                            text = message.content,
-                            color = if (isMe) White else Gray900
-                        )
+                    MessageType.VOICE -> VoiceMessage(
+                        content = content,
+                        isMe = isMe,
+                        createdAt = message.createdAt,
+                        isLoading = isLoading,
+                    )
 
-                        Spacer(modifier = Modifier.height(4.dp))
-
-                        Row(
-                            horizontalArrangement = Arrangement.End,
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            Text(
-                                text = formatIsoDate(message.createdAt),
-                                fontSize = 10.sp,
-                                color = if (isMe) White.copy(alpha = 0.7f) else Gray600
-                            )
-
-                            if (isMe) {
-                                Spacer(modifier = Modifier.width(4.dp))
-                                Text(
-                                    text = if (true) "✓✓" else "✓",
-                                    fontSize = 10.sp,
-                                    color = White.copy(alpha = 0.8f)
-                                )
+                    MessageType.FILE -> FileMessage(
+                        fileName = message.attachment?.originalFileName
+                            ?: "Unknown file", // Extract from message content
+                        fileSize = message.attachment?.originalFileSize?.toString()
+                            ?: "Unknown size",      // Extract from message metadata
+                        isMe = isMe,
+                        createdAt = message.createdAt,
+                        onDownloadClick = {
+                            viewModel.viewModelScope.launch {
+                                viewModel.downloadFile(context, message)
                             }
                         }
+                    )
+
+                    MessageType.VIDEO -> VideoMessage(
+                        videoUri = if (isLoading) null else content.toUri(
+                            context,
+                            message.attachment?.originalFileName ?: "video"
+                        ),
+                        isMe = isMe,
+                        createdAt = message.createdAt,
+                        isLoading = isLoading,
+                        showVideoOnFullScreen = { viewModel.showVideoOnFullScreen(it) }
+                    )
+                }
+            }
+        }
+    }
+
+    if (state.isFullScreenOpen) {
+        Dialog(
+            onDismissRequest = { viewModel.closeFullScreen() },
+            properties = DialogProperties(usePlatformDefaultWidth = false)
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Black)
+            ) {
+                if (state.selectedImageUri != null) {
+                    AsyncImage(
+                        model = state.selectedImageUri,
+                        contentDescription = null,
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Fit
+                    )
+                } else if (state.selectedVideoUri != null) {
+                    VideoPlayer(
+                        videoUri = state.selectedVideoUri!!,
+                        modifier = Modifier.fillMaxSize()
+                    )
+                } else {
+                    Text("Probably Unhandled state")
+                }
+
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 40.dp, start = 16.dp, end = 16.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    // Close Button
+                    IconButton(
+                        onClick = { viewModel.closeFullScreen() },
+                        modifier = Modifier.background(
+                            Color.Black.copy(alpha = 0.5f),
+                            CircleShape
+                        )
+                    ) {
+                        Icon(
+                            imageVector = Lucide.X,
+                            contentDescription = "Close",
+                            tint = Color.White
+                        )
+                    }
+
+                    IconButton(
+                        onClick = {
+                            if (state.selectedImageUri != null) {
+                                viewModel.saveImageToGallery(state.selectedImageUri!!)
+                            } else if (state.selectedVideoUri != null) {
+                                viewModel.saveVideoToGallery(state.selectedVideoUri!!)
+                            }
+                        },
+                        modifier = Modifier.background(
+                            Color.Black.copy(alpha = 0.5f),
+                            CircleShape
+                        )
+                    ) {
+                        Icon(
+                            imageVector = Lucide.Download,
+                            contentDescription = "Download",
+                            tint = Color.White
+                        )
                     }
                 }
             }
