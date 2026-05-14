@@ -35,6 +35,7 @@ import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
 import com.composables.icons.lucide.LoaderCircle
 import com.composables.icons.lucide.Lucide
+import com.example.payn.chat.domain.MessageStatus
 import com.example.payn.core.data.mappers.toUri
 import com.example.payn.ui.theme.Blue500
 import com.example.payn.ui.theme.Gray600
@@ -44,6 +45,7 @@ import com.example.payn.ui.theme.White
 @Composable
 fun ImageMessage(
     content: ByteArray,
+    status: MessageStatus,
     isMe: Boolean,
     createdAt: String,
     isLoading: Boolean,
@@ -143,11 +145,7 @@ fun ImageMessage(
 
                 if (isMe) {
                     Spacer(modifier = Modifier.width(4.dp))
-                    Text(
-                        text = "✓✓",
-                        fontSize = 10.sp,
-                        color = White
-                    )
+                    MessageStatus(status)
                 }
             }
         }

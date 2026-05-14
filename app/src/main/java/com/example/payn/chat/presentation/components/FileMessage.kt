@@ -28,6 +28,7 @@ import androidx.compose.ui.unit.sp
 import com.composables.icons.lucide.File
 import com.composables.icons.lucide.Download
 import com.composables.icons.lucide.Lucide
+import com.example.payn.chat.domain.MessageStatus
 import com.example.payn.ui.theme.Blue500
 import com.example.payn.ui.theme.Gray600
 import com.example.payn.ui.theme.Gray900
@@ -37,6 +38,7 @@ import com.example.payn.ui.theme.White
 fun FileMessage(
     fileName: String,
     fileSize: String,
+    status: MessageStatus,
     isMe: Boolean,
     createdAt: String,
     onDownloadClick: () -> Unit
@@ -127,11 +129,7 @@ fun FileMessage(
 
                 if (isMe) {
                     Spacer(modifier = Modifier.width(4.dp))
-                    Text(
-                        text = "✓✓",
-                        fontSize = 10.sp,
-                        color = secondaryTextColor
-                    )
+                    MessageStatus(status)
                 }
             }
         }

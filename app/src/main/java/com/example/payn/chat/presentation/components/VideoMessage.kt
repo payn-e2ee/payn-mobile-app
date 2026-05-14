@@ -49,6 +49,7 @@ import com.composables.icons.lucide.LoaderCircle
 import com.composables.icons.lucide.Lucide
 import com.composables.icons.lucide.Pause
 import com.composables.icons.lucide.Play
+import com.example.payn.chat.domain.MessageStatus
 import com.example.payn.ui.theme.Blue500
 import com.example.payn.ui.theme.Gray600
 import com.example.payn.ui.theme.Gray900
@@ -57,6 +58,7 @@ import com.example.payn.ui.theme.White
 @Composable
 fun VideoMessage(
     videoUri: Uri?,
+    status: MessageStatus,
     isMe: Boolean,
     createdAt: String,
     isLoading: Boolean,
@@ -150,7 +152,7 @@ fun VideoMessage(
             Text(text = formatIsoDate(createdAt), fontSize = 10.sp, color = White)
             if (isMe) {
                 Spacer(modifier = Modifier.width(4.dp))
-                Text(text = "✓✓", fontSize = 10.sp, color = White)
+                MessageStatus(status)
             }
         }
     }

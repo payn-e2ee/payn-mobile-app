@@ -11,5 +11,6 @@ data class ChatMessage(
     val deviceId: String,
     val attachment: Attachment?,
     val messageType: MessageType,
+    val status: MessageStatus,
     val createdAt: String,
 )

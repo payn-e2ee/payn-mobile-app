@@ -1,14 +1,22 @@
 package com.example.payn.chat.data.service
 
+import android.util.Base64
 import android.util.Log
+import com.example.payn.chat.data.dto.InitChatDTO
 import com.example.payn.chat.data.dto.MessageFrameDTO
 import com.example.payn.chat.data.dto.MessageHeaderDTO
 import com.example.payn.chat.data.dto.MessageTypeDTO
+import com.example.payn.chat.data.mappers.toChat
 import com.example.payn.chat.data.mappers.toMessageType
+import com.example.payn.chat.data.repository.ChatRepository
 import com.example.payn.chat.data.security.DoubleRatchetEngine
 import com.example.payn.chat.domain.ChatMessage
+import com.example.payn.chat.domain.MessageStatus
 import com.example.payn.core.config.AppConfig
 import com.example.payn.core.data.AuthSessionManager
+import com.example.payn.core.data.dto.AttachmentDTO
+import com.example.payn.core.data.dto.UploadAttachmentFormDTO
+import com.example.payn.core.data.mappers.toAttachment
 import com.example.payn.core.data.network.MqttWebSocketClient
 import com.example.payn.core.data.repository.AttachmentRepository
 import com.example.payn.core.domain.models.User
@@ -17,14 +25,6 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.Json
 import java.nio.charset.StandardCharsets
 import java.util.UUID
-import android.util.Base64
-import com.example.payn.chat.data.dto.InitChatDTO
-import com.example.payn.chat.data.mappers.toChat
-import com.example.payn.chat.data.repository.ChatRepository
-import com.example.payn.core.data.dto.AttachmentDTO
-import com.example.payn.core.data.dto.UploadAttachmentFormDTO
-import com.example.payn.core.data.mappers.toAttachment
-import com.example.payn.core.domain.models.Attachment
 
 class ChatService(
     val mqttWebSocketClient: MqttWebSocketClient,
@@ -140,6 +140,7 @@ class ChatService(
                         deviceId = messageFrameDTO.header.senderDeviceId,
                         messageCounter = messageFrameDTO.header.messageCounter,
                         ephemeralPublicKey = messageFrameDTO.header.senderEphemeralPublicKey,
+                        status = MessageStatus.SEEN,
                         createdAt = System.currentTimeMillis().toString()
                     )
                 )
