@@ -19,6 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.payn.chat.domain.MessageStatus
 import com.example.payn.ui.theme.Blue500
 import com.example.payn.ui.theme.Gray600
 import com.example.payn.ui.theme.Gray900
@@ -27,6 +28,7 @@ import com.example.payn.ui.theme.White
 @Composable
 fun TextMessage(
     content: ByteArray,
+    status: MessageStatus,
     isMe: Boolean,
     createdAt: String
 ) {
@@ -67,11 +69,7 @@ fun TextMessage(
 
                 if (isMe) {
                     Spacer(modifier = Modifier.width(4.dp))
-                    Text(
-                        text = if (true) "✓✓" else "✓",
-                        fontSize = 10.sp,
-                        color = White.copy(alpha = 0.8f)
-                    )
+                    MessageStatus(status)
                 }
             }
         }

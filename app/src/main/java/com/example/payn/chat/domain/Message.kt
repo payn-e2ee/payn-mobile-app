@@ -5,7 +5,7 @@ data class Message(
     val chatId: String,
     val userId: String,
     val deviceId: String,
-    val status: String,
+    val status: MessageStatus,
     val createdAt: String,
     var messageDeliveries: List<MessageDelivery>
 )

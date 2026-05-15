@@ -13,6 +13,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
 import com.example.payn.app.Route
 import com.example.payn.chat.data.dto.MessageTypeDTO
+import com.example.payn.chat.data.dto.UpdateMessagesBatchFormDTO
 import com.example.payn.chat.data.mappers.toChat
 import com.example.payn.chat.data.mappers.toMessage
 import com.example.payn.chat.data.mappers.toMessageType
@@ -20,6 +21,7 @@ import com.example.payn.chat.data.repository.ChatRepository
 import com.example.payn.chat.data.security.DoubleRatchetEngine
 import com.example.payn.chat.data.service.ChatService
 import com.example.payn.chat.domain.ChatMessage
+import com.example.payn.chat.domain.MessageStatus
 import com.example.payn.core.data.AuthSessionManager
 import com.example.payn.core.data.FileManager
 import com.example.payn.core.data.mappers.toAttachment
@@ -119,6 +121,7 @@ class ChatDetailViewModel(
                                     attachment = messageDelivery.attachment,
                                     deviceId = messageDelivery.senderDeviceId,
                                     ephemeralPublicKey = messageDelivery.ephemeralPublicKey,
+                                    status = message.status,
                                     createdAt = message.createdAt
                                 )
                             }
@@ -231,6 +234,7 @@ class ChatDetailViewModel(
                 messageCounter = messageFrame.header.messageCounter,
                 ephemeralPublicKey = messageFrame.header.senderEphemeralPublicKey,
                 messageType = messageFrame.header.messageType.toMessageType(),
+                status = MessageStatus.SENT,
                 createdAt = System.currentTimeMillis().toString()
             )
         )
@@ -366,6 +370,24 @@ class ChatDetailViewModel(
                     }
                 }
             }.onError { Toast.makeText(context, "Something went wrong", Toast.LENGTH_SHORT).show() }
+    }
+
+    suspend fun markMessagesAsSeen() {
+        val chatId = chatId ?: return
+        val messagesIds =
+            _state.value.messages.filter { it.status != MessageStatus.SEEN && it.userId != currentUser?.id }
+                .map { it.id }
+
+        if (messagesIds.isEmpty()) {
+            return
+        }
+
+        chatRepository.updateMessagesBatch(
+            chatId, UpdateMessagesBatchFormDTO(
+                messageIds = messagesIds,
+                status = "seen"
+            )
+        )
     }
 
     override fun onCleared() {

@@ -46,6 +46,7 @@ import com.composables.icons.lucide.Lucide
 import com.composables.icons.lucide.Pause
 import com.composables.icons.lucide.Play
 import com.example.payn.chat.data.AudioPlayer
+import com.example.payn.chat.domain.MessageStatus
 import com.example.payn.ui.theme.Blue500
 import com.example.payn.ui.theme.Gray600
 import com.example.payn.ui.theme.Gray900
@@ -55,6 +56,7 @@ import kotlin.math.abs
 @Composable
 fun VoiceMessage(
     content: ByteArray,
+    status: MessageStatus,
     isMe: Boolean,
     createdAt: String,
     isLoading: Boolean,
@@ -95,7 +97,9 @@ fun VoiceMessage(
                 Spacer(modifier = Modifier.width(8.dp))
 
                 LoadingWaveformPlaceholder(
-                    modifier = Modifier.weight(1f).fillMaxHeight(),
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxHeight(),
                     color = unplayedColor
                 )
 
@@ -174,6 +178,11 @@ fun VoiceMessage(
                 fontSize = 10.sp,
                 color = if (isMe) White.copy(alpha = 0.7f) else Gray600
             )
+
+            if (isMe) {
+                Spacer(modifier = Modifier.width(4.dp))
+                MessageStatus(status)
+            }
         }
     }
 }

@@ -127,6 +127,7 @@ fun MessagesBox(
                 when (message.messageType) {
                     MessageType.TEXT -> TextMessage(
                         content = content,
+                        status = message.status,
                         isMe = isMe,
                         createdAt = message.createdAt,
                     )
@@ -137,10 +138,12 @@ fun MessagesBox(
                         createdAt = message.createdAt,
                         isLoading = isLoading,
                         showImageOnFullScreen = { viewModel.showImageOnFullScreen(it) },
+                        status = message.status,
                     )
 
                     MessageType.VOICE -> VoiceMessage(
                         content = content,
+                        status = message.status,
                         isMe = isMe,
                         createdAt = message.createdAt,
                         isLoading = isLoading,
@@ -151,6 +154,7 @@ fun MessagesBox(
                             ?: "Unknown file", // Extract from message content
                         fileSize = message.attachment?.originalFileSize?.toString()
                             ?: "Unknown size",      // Extract from message metadata
+                        status = message.status,
                         isMe = isMe,
                         createdAt = message.createdAt,
                         onDownloadClick = {
@@ -165,6 +169,7 @@ fun MessagesBox(
                             context,
                             message.attachment?.originalFileName ?: "video"
                         ),
+                        status = message.status,
                         isMe = isMe,
                         createdAt = message.createdAt,
                         isLoading = isLoading,

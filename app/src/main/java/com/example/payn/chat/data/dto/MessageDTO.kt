@@ -17,7 +17,7 @@ data class MessageDTO(
     @SerialName("device_id")
     val deviceId: String,
 
-    val status: String,
+    val status: MessageStatusDTO,
 
     @SerialName("created_at")
     val createdAt: String,
