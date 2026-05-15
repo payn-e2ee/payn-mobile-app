@@ -10,6 +10,10 @@ coreKtx = "1.18.0"
 lifecycleRuntimeKtx = "2.10.0"
 activityCompose = "1.13.0"
 composeBom = "2026.03.01"
+media3Exoplayer = "1.10.0"
+media3ExoplayerDash = "1.10.0"
+media3Ui = "1.10.0"
+media3UiComposeMaterial3 = "1.10.0"
 navigationCompose = "2.9.7"
 prettytime = "5.0.8.Final"
 roomRuntime = "2.8.4"
@@ -42,6 +46,10 @@ androidx-compose-ui-graphics = { group = "androidx.compose.ui", name = "ui-graph
 androidx-compose-ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling" }
 androidx-compose-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview" }
 androidx-compose-material3 = { group = "androidx.compose.material3", name = "material3" }
+androidx-media3-ui-compose-material3 = { module = "androidx.media3:media3-ui-compose-material3", version.ref = "media3UiComposeMaterial3" }
+androidx-media3-ui = { module = "androidx.media3:media3-ui", version.ref = "media3Ui" }
+androidx-media3-exoplayer-dash = { module = "androidx.media3:media3-exoplayer-dash", version.ref = "media3ExoplayerDash" }
+androidx-media3-exoplayer = { module = "androidx.media3:media3-exoplayer", version.ref = "media3Exoplayer" }
 androidx-navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigationCompose" }
 androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "roomRuntime" }
 androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "roomRuntime" }

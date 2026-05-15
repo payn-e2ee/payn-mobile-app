@@ -18,11 +18,14 @@ import com.example.payn.contact.presentation.contact_list.ListContactsViewModel
 import com.example.payn.core.data.AuthSessionManager
 import com.example.payn.settings.presentation.SettingsViewModel
 import com.example.payn.core.data.CryptoManager
+import com.example.payn.core.data.FileManager
 import com.example.payn.core.data.HttpClientFactory
 import com.example.payn.core.data.KeyValueStorage
 import com.example.payn.core.data.SecureDatabaseFactory
+import com.example.payn.core.data.network.AttachmentDataSource
 import com.example.payn.core.data.network.MqttWebSocketClient
 import com.example.payn.core.data.network.UserDataSource
+import com.example.payn.core.data.repository.AttachmentRepository
 import com.example.payn.core.data.repository.UserRepository
 import com.example.payn.core.data.PaynNotificationManager
 import com.example.payn.settings.presentation.edit_profile.EditProfileViewModel
@@ -45,11 +48,13 @@ val appModule = module {
     singleOf(::ChatDataSource)
     singleOf(::UserDataSource)
     singleOf(::ContactDataSource)
+    singleOf(::AttachmentDataSource)
 
     singleOf(::AuthRepository)
     singleOf(::ChatRepository)
     singleOf(::UserRepository)
     singleOf(::ContactRepository)
+    singleOf(::AttachmentRepository)
 
     singleOf(::DoubleRatchetEngine)
     singleOf(::ChatService)
@@ -66,6 +71,7 @@ val appModule = module {
     single {
         PaynNotificationManager(androidApplication())
     }
+    single { FileManager(androidApplication()) }
 
     viewModelOf(::WelcomeViewModel)
     viewModelOf(::LoginViewModel)

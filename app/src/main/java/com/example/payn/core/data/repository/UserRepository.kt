@@ -22,7 +22,10 @@ class UserRepository(
         return userDataSource.updateFcmToken(token)
     }
 
-    suspend fun updateCurrentUser(updateUserFormDTO: UpdateUserFormDTO): Result<ApiResponse<UserDTO>, DataError.Remote> {
-        return userDataSource.updateCurrentUser(updateUserFormDTO)
+    suspend fun updateCurrentUser(
+        updateUserFormDTO: UpdateUserFormDTO,
+        profileImageBytes: ByteArray? = null
+    ): Result<ApiResponse<UserDTO>, DataError.Remote> {
+        return userDataSource.updateCurrentUser(updateUserFormDTO, profileImageBytes)
     }
 }

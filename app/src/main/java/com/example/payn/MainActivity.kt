@@ -23,6 +23,13 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    override fun onWindowFocusChanged(hasFocus: Boolean) {
+        super.onWindowFocusChanged(hasFocus)
+        if (hasFocus) {
+            hideSystemUI()
+        }
+    }
+
     private fun hideSystemUI() {
         val windowInsetsController = WindowInsetsControllerCompat(window, window.decorView)
 

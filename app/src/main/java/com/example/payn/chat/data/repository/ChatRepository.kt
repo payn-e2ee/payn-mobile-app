@@ -3,6 +3,7 @@ package com.example.payn.chat.data.repository
 import com.example.payn.chat.data.dto.ChatDTO
 import com.example.payn.chat.data.dto.InitChatDTO
 import com.example.payn.chat.data.dto.MessageDTO
+import com.example.payn.chat.data.dto.UpdateMessagesBatchFormDTO
 import com.example.payn.chat.data.network.ChatDataSource
 import com.example.payn.core.domain.ApiResponse
 import com.example.payn.core.domain.DataError
@@ -28,5 +29,12 @@ class ChatRepository(
 
     suspend fun initChat(initChatDTO: InitChatDTO): Result<ApiResponse<ChatDTO>, DataError> {
         return chatDataSource.initChat(initChatDTO)
+    }
+
+    suspend fun updateMessagesBatch(
+        chatId: String,
+        updateMessagesBatchFormDTO: UpdateMessagesBatchFormDTO
+    ): Result<ApiResponse<List<MessageDTO>>, DataError.Remote> {
+        return chatDataSource.updateMessagesBatch(chatId, updateMessagesBatchFormDTO)
     }
 }

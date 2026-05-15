@@ -59,6 +59,11 @@ dependencies {
     implementation("com.hivemq:hivemq-mqtt-client:1.3.3")
     implementation("io.netty:netty-codec-http:4.1.99.Final")
 
+    implementation(libs.androidx.media3.exoplayer)
+    implementation(libs.androidx.media3.exoplayer.dash)
+    implementation(libs.androidx.media3.ui)
+    implementation(libs.androidx.media3.ui.compose.material3)
+
     implementation(libs.prettytime)
 
     implementation(libs.coil.compose)

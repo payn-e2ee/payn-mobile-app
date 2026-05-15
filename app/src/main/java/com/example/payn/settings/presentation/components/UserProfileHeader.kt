@@ -1,6 +1,5 @@
 package com.example.payn.settings.presentation.components
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -23,13 +22,13 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil3.compose.AsyncImage
 import com.composables.icons.lucide.Lucide
 import com.composables.icons.lucide.Pencil
-import com.example.payn.R
+import com.example.payn.core.config.AppConfig
 import com.example.payn.core.domain.models.User
 import com.example.payn.core.presentation.components.GlassCard
 import com.example.payn.ui.theme.Blue500
@@ -56,9 +55,9 @@ fun UserProfileHeader(
             horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             Box(contentAlignment = Alignment.BottomEnd) {
-                if (hasAvatar) {
-                    Image(
-                        painter = painterResource(R.drawable.default_profile_picture),
+                if (user?.profileImageId != null) {
+                    AsyncImage(
+                        model = "${AppConfig.BASE_API_URL}/attachments/${user.profileImageId}",
                         contentDescription = "profile image",
                         modifier = Modifier
                             .size(80.dp)
@@ -79,7 +78,7 @@ fun UserProfileHeader(
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
-                            text = "J",
+                            text = user?.firstname?.take(1) ?: "U",
                             style = MaterialTheme.typography.headlineMedium.copy(
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 30.sp

@@ -13,6 +13,7 @@ import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import android.util.Base64
 
 class ChatListViewModel(
     private val chatRepository: ChatRepository,
@@ -62,7 +63,7 @@ class ChatListViewModel(
         if (!isFromMe && doubleRatchetEngine.isFirstTimeSeeingEphemeralPublicKey(ephemeralPublicKey)) {
             return String(
                 doubleRatchetEngine.decryptMessage(
-                    ciphertext = ciphertext,
+                    ciphertext = Base64.decode(ciphertext, Base64.DEFAULT),
                     remoteEphemeralPublicKey = ephemeralPublicKey,
                     messageCounter = messageCounter,
                     remoteDeviceId = deviceId,
@@ -72,7 +73,7 @@ class ChatListViewModel(
 
         return String(
             doubleRatchetEngine.decryptStateless(
-                ciphertext = ciphertext,
+                ciphertext = Base64.decode(ciphertext, Base64.DEFAULT),
                 ephemeralPublicKey = ephemeralPublicKey,
                 messageCounter = messageCounter,
                 isFromMe = isFromMe,

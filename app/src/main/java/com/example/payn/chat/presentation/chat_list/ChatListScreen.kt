@@ -18,7 +18,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -39,6 +38,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import com.example.payn.R
 import com.example.payn.app.Route
+import com.example.payn.chat.domain.MessageType
+import com.example.payn.chat.presentation.components.MessageStatus
 import com.example.payn.chat.presentation.components.SearchInput
 import com.example.payn.core.presentation.components.GlassCard
 import com.example.payn.ui.theme.Blue400
@@ -110,13 +111,20 @@ fun ChatListScreen(
                     var content by remember { mutableStateOf("Loading...") }
                     LaunchedEffect(messageDelivery) {
                         if (messageDelivery != null) {
-                            content = viewModel.decryptMessage(
-                                ciphertext = messageDelivery.ciphertext,
-                                ephemeralPublicKey = messageDelivery.ephemeralPublicKey,
-                                messageCounter = messageDelivery.messageCounter,
-                                userId = messageDelivery.senderUserId,
-                                deviceId = messageDelivery.senderDeviceId
-                            )
+                            content = when (messageDelivery.type) {
+                                MessageType.TEXT -> viewModel.decryptMessage(
+                                    ciphertext = messageDelivery.ciphertext,
+                                    ephemeralPublicKey = messageDelivery.ephemeralPublicKey,
+                                    messageCounter = messageDelivery.messageCounter,
+                                    userId = messageDelivery.senderUserId,
+                                    deviceId = messageDelivery.senderDeviceId
+                                )
+
+                                MessageType.IMAGE -> "Image"
+                                MessageType.VOICE -> "Voice"
+                                MessageType.FILE -> "File"
+                                MessageType.VIDEO -> "Video"
+                            }
                         }
                     }
 
@@ -194,7 +202,6 @@ fun ChatListScreen(
                                 if (messageDelivery != null) {
                                     Row(
                                         modifier = Modifier.fillMaxWidth(),
-                                        horizontalArrangement = Arrangement.SpaceBetween
                                     ) {
                                         Text(
                                             text = content,
@@ -202,32 +209,8 @@ fun ChatListScreen(
                                             color = Gray600,
                                             maxLines = 1
                                         )
-
-                                        when (message.status) {
-                                            "delivered" -> {
-                                                Box(
-                                                    modifier = Modifier
-                                                        .padding(start = 8.dp)
-                                                        .clip(RoundedCornerShape(50))
-                                                        .background(Blue500)
-                                                        .padding(horizontal = 8.dp, vertical = 2.dp)
-                                                ) {
-                                                    Text(
-                                                        text = "✓",
-                                                        color = White,
-                                                        fontSize = 12.sp
-                                                    )
-                                                }
-                                            }
-
-                                            "seen" -> {
-                                                Text(
-                                                    text = "✓✓",
-                                                    color = Blue500,
-                                                    fontSize = 12.sp
-                                                )
-                                            }
-                                        }
+                                        Spacer(modifier = Modifier.width(8.dp))
+                                        MessageStatus(message.status, true)
                                     }
                                 }
                             }

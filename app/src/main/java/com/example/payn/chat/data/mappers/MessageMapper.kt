@@ -9,7 +9,7 @@ fun MessageDTO.toMessage(): Message {
         chatId = chatId,
         userId = userId,
         deviceId = deviceId,
-        status = status,
+        status = status.toMessageStatus(),
         createdAt = createdAt,
         messageDeliveries = messageDeliveries.map { it.toMessageDelivery() }
     )

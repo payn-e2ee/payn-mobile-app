@@ -9,4 +9,6 @@ data class UpdateUserFormDTO(
     val firstname: String? = null,
 
     val lastname: String? = null,
+
+    val profile_image_id: String? = null,
 )
