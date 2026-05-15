@@ -15,6 +15,8 @@ data class UserDTO(
     val chatMembers: List<ChatMemberDTO> = emptyList(),
 
     @SerialName("phone_number")
-    val phoneNumber: String
+    val phoneNumber: String,
 
+    @SerialName("profile_image_id")
+    val profileImageId: String? = null
 )

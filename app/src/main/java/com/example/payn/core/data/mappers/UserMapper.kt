@@ -11,6 +11,7 @@ fun UserDTO.toUser(): User {
         firstname = firstname,
         lastname = lastname,
         phoneNumber = phoneNumber,
+        profileImageId = profileImageId,
         devices = devices.map { it.toDevice() },
         chatMembers = chatMembers.map { it.toChatMember() }
     )

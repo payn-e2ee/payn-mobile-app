@@ -8,6 +8,7 @@ data class User(
     val firstname: String,
     val lastname: String,
     val phoneNumber: String,
+    val profileImageId: String? = null,
     val devices: List<Device> = emptyList(),
     val chatMembers: List<ChatMember> = emptyList()
 )

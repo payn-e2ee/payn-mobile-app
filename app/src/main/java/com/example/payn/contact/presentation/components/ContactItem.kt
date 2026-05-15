@@ -1,6 +1,5 @@
 package com.example.payn.contact.presentation.components
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -20,15 +19,16 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil3.compose.AsyncImage
 import com.composables.icons.lucide.Lucide
 import com.composables.icons.lucide.MessageCircle
-import com.example.payn.R
 import com.example.payn.contact.domain.Contact
+import com.example.payn.core.config.AppConfig
 import com.example.payn.core.presentation.components.GlassCard
 import com.example.payn.ui.theme.Blue400
 import com.example.payn.ui.theme.Blue500
@@ -37,6 +37,7 @@ import com.example.payn.ui.theme.Gray400
 import com.example.payn.ui.theme.Gray600
 import com.example.payn.ui.theme.Gray900
 import com.example.payn.ui.theme.Green500
+import com.example.payn.ui.theme.Purple400
 import com.example.payn.ui.theme.White
 
 @Composable
@@ -64,15 +65,38 @@ fun ContactItem(
             ) {
                 // Avatar with online status
                 Box {
-                    Image(
-                        painter = painterResource(R.drawable.default_profile_picture),
-                        contentDescription = "${contact.firstname} ${contact.lastname}",
-                        modifier = Modifier
-                            .size(48.dp)
-                            .clip(CircleShape)
-                            .border(2.dp, White.copy(alpha = 0.2f), CircleShape),
-                        contentScale = ContentScale.Crop
-                    )
+                    if (contact.contactUser?.profileImageId != null) {
+                        AsyncImage(
+                            model = "${AppConfig.BASE_API_URL}/attachments/${contact.contactUser.profileImageId}",
+                            contentDescription = fullName,
+                            modifier = Modifier
+                                .size(48.dp)
+                                .clip(CircleShape)
+                                .border(2.dp, White.copy(alpha = 0.2f), CircleShape),
+                            contentScale = ContentScale.Crop
+                        )
+                    } else {
+                        Box(
+                            modifier = Modifier
+                                .size(48.dp)
+                                .clip(CircleShape)
+                                .background(
+                                    brush = Brush.linearGradient(
+                                        colors = listOf(Blue500, Purple400)
+                                    )
+                                )
+                                .border(2.dp, White.copy(alpha = 0.2f), CircleShape),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = contact.firstname.take(1),
+                                color = White,
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 18.sp
+                            )
+                        }
+                    }
+
                     if (true) {
                         Box(
                             modifier = Modifier

@@ -8,6 +8,8 @@ sealed interface DataError : Error {
         data object NO_INTERNET : Remote
         data object SERVER : Remote
         data object SERIALIZATION : Remote
+        data object UNAUTHORIZED : Remote
+        data object FORBIDDEN : Remote
         data object UNKNOWN : Remote
     }
 

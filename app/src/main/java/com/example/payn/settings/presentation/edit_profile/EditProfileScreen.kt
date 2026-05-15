@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
@@ -21,6 +22,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
@@ -45,7 +47,11 @@ import com.composables.icons.lucide.AtSign
 import com.composables.icons.lucide.Camera
 import com.composables.icons.lucide.Lucide
 import com.composables.icons.lucide.User
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.clickable
 import com.example.payn.app.Route
+import com.example.payn.core.config.AppConfig
 import com.example.payn.core.presentation.components.GlassCard
 import com.example.payn.settings.presentation.components.Input
 import com.example.payn.ui.theme.Blue400
@@ -87,6 +93,14 @@ fun EditProfileScreen(
         )
     }
 
+    val launcher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri ->
+        uri?.let {
+            viewModel.onImageSelected(it)
+        }
+    }
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -103,7 +117,7 @@ fun EditProfileScreen(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(top = 16.dp, bottom = 24.dp),
+                    .padding(top = 32.dp, bottom = 24.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 IconButton(
@@ -144,45 +158,73 @@ fun EditProfileScreen(
                         .fillMaxWidth(),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Box(modifier = Modifier.size(128.dp)) {
-                        if (state.profileImage.isNotEmpty()) {
-                            AsyncImage(
-                                model = state.profileImage,
-                                contentDescription = "Profile Picture",
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .clip(CircleShape)
-                                    .border(4.dp, White20, CircleShape),
-                                contentScale = ContentScale.Crop
-                            )
-                        } else {
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .clip(CircleShape)
-                                    .background(
-                                        Brush.linearGradient(
-                                            colors = listOf(Blue500, Purple900)
-                                        )
-                                    )
-                                    .border(4.dp, White20, CircleShape),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Text(
-                                    text = state.firstname.take(1).ifEmpty { "U" },
-                                    fontSize = 48.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    color = Color.White
+                    Box(
+                        modifier = Modifier.size(128.dp)
+                    ) {
+                        // Profile Image/Circle
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .clip(CircleShape)
+                                .background(White10)
+                                .border(
+                                    width = 1.dp,
+                                    color = White20,
+                                    shape = CircleShape
                                 )
+                                .clickable { launcher.launch("image/*") }
+                        ) {
+                            val imageSource = if (state.profileImageBytes != null) {
+                                state.profileImageBytes
+                            } else if (state.profileImageId != null) {
+                                "${AppConfig.BASE_API_URL}/attachments/${state.profileImageId}"
+                            } else {
+                                null
+                            }
+
+                            if (imageSource != null) {
+                                AsyncImage(
+                                    model = imageSource,
+                                    contentDescription = "Profile Picture",
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .clip(CircleShape)
+                                        .border(4.dp, White20, CircleShape),
+                                    contentScale = ContentScale.Crop
+                                )
+                            } else {
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .clip(CircleShape)
+                                        .background(
+                                            Brush.linearGradient(
+                                                colors = listOf(Blue500, Purple900)
+                                            )
+                                        )
+                                        .border(4.dp, White20, CircleShape),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Text(
+                                        text = state.firstname.take(1).ifEmpty { "U" },
+                                        fontSize = 48.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = Color.White
+                                    )
+                                }
                             }
                         }
 
+                        // Camera Icon (Overlay - outside the clipped box)
                         Box(
                             modifier = Modifier
                                 .align(Alignment.BottomEnd)
+                                .offset(x = 4.dp, y = 4.dp)
                                 .size(40.dp)
                                 .clip(CircleShape)
-                                .background(Blue500),
+                                .background(Blue500)
+                                .border(2.dp, if (isDark) Gray900 else White, CircleShape)
+                                .clickable { launcher.launch("image/*") },
                             contentAlignment = Alignment.Center
                         ) {
                             Icon(
@@ -197,7 +239,7 @@ fun EditProfileScreen(
                     Spacer(modifier = Modifier.height(16.dp))
 
                     Text(
-                        text = "Tap the camera icon to change your profile picture",
+                        text = "Tap the image or camera icon to change your profile picture",
                         fontSize = 14.sp,
                         color = if (isDark) Gray300 else Gray600,
                         modifier = Modifier.fillMaxWidth(),
@@ -344,9 +386,18 @@ fun EditProfileScreen(
                         contentColor = Color.White
                     ),
                     shape = RoundedCornerShape(16.dp),
-                    elevation = ButtonDefaults.buttonElevation(defaultElevation = 4.dp)
+                    elevation = ButtonDefaults.buttonElevation(defaultElevation = 4.dp),
+                    enabled = !state.isLoading
                 ) {
-                    Text("Save Changes", fontWeight = FontWeight.Medium)
+                    if (state.isLoading) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(24.dp),
+                            color = Color.White,
+                            strokeWidth = 2.dp
+                        )
+                    } else {
+                        Text("Save Changes", fontWeight = FontWeight.Medium)
+                    }
                 }
             }
 
