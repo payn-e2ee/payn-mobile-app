@@ -92,7 +92,7 @@ fun MessagesBox(
 
         ) {
         items(messages, key = { it.id }) { message ->
-            val isMe = message.userId == currentUser.id
+            val isMe = message.senderUserId == currentUser.id
             var isLoading by remember { mutableStateOf(true) }
             var content by remember { mutableStateOf("".toByteArray()) }
 
@@ -103,16 +103,18 @@ fun MessagesBox(
                             ciphertext = Base64.decode(message.ciphertext, Base64.DEFAULT),
                             ephemeralPublicKey = message.ephemeralPublicKey,
                             messageCounter = message.messageCounter,
-                            userId = message.userId,
-                            deviceId = message.deviceId,
+                            userId = message.senderUserId,
+                            senderDeviceId = message.senderDeviceId,
+                            receiptDeviceId = message.recipientDeviceId,
                         )
 
                     MessageType.IMAGE, MessageType.VOICE, MessageType.VIDEO -> viewModel.decryptMessage(
                         ciphertext = viewModel.getAttachmentFileBytes(message.attachment!!.id),
                         ephemeralPublicKey = message.ephemeralPublicKey,
                         messageCounter = message.messageCounter,
-                        userId = message.userId,
-                        deviceId = message.deviceId,
+                        userId = message.senderUserId,
+                        senderDeviceId = message.senderDeviceId,
+                        receiptDeviceId = message.recipientDeviceId,
                     )
 
                     else -> "".toByteArray()

@@ -117,7 +117,8 @@ fun ChatListScreen(
                                     ephemeralPublicKey = messageDelivery.ephemeralPublicKey,
                                     messageCounter = messageDelivery.messageCounter,
                                     userId = messageDelivery.senderUserId,
-                                    deviceId = messageDelivery.senderDeviceId
+                                    senderDeviceId = messageDelivery.senderDeviceId,
+                                    receiptDeviceId = messageDelivery.recipientDeviceId,
                                 )
 
                                 MessageType.IMAGE -> "Image"

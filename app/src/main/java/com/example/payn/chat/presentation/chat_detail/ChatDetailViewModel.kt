@@ -115,11 +115,13 @@ class ChatDetailViewModel(
                                 ChatMessage(
                                     id = message.id,
                                     ciphertext = messageDelivery.ciphertext,
-                                    userId = messageDelivery.senderUserId,
+                                    senderUserId = messageDelivery.senderUserId,
+                                    senderDeviceId = messageDelivery.senderDeviceId,
+                                    recipientUserId = messageDelivery.recipientUserId,
+                                    recipientDeviceId = messageDelivery.recipientDeviceId,
                                     messageType = messageDelivery.type,
                                     messageCounter = messageDelivery.messageCounter,
                                     attachment = messageDelivery.attachment,
-                                    deviceId = messageDelivery.senderDeviceId,
                                     ephemeralPublicKey = messageDelivery.ephemeralPublicKey,
                                     status = message.status,
                                     createdAt = message.createdAt
@@ -228,9 +230,11 @@ class ChatDetailViewModel(
             ChatMessage(
                 id = UUID.randomUUID().toString(),
                 ciphertext = messageFrame.ciphertext,
-                userId = messageFrame.header.senderUserId,
+                senderUserId = messageFrame.header.senderUserId,
+                senderDeviceId = messageFrame.header.senderDeviceId,
+                recipientUserId = messageFrame.header.recipientUserId,
+                recipientDeviceId = messageFrame.header.recipientDeviceId,
                 attachment = messageFrame.header.attachment?.toAttachment(),
-                deviceId = messageFrame.header.senderDeviceId,
                 messageCounter = messageFrame.header.messageCounter,
                 ephemeralPublicKey = messageFrame.header.senderEphemeralPublicKey,
                 messageType = messageFrame.header.messageType.toMessageType(),
@@ -253,7 +257,8 @@ class ChatDetailViewModel(
         ephemeralPublicKey: String,
         messageCounter: Int,
         userId: String,
-        deviceId: String
+        senderDeviceId: String,
+        receiptDeviceId: String
     ): ByteArray {
         val isFromMe = currentUser?.id == userId
 
@@ -262,7 +267,7 @@ class ChatDetailViewModel(
                 ciphertext = ciphertext,
                 remoteEphemeralPublicKey = ephemeralPublicKey,
                 messageCounter = messageCounter,
-                remoteDeviceId = deviceId,
+                remoteDeviceId = senderDeviceId,
             )
         }
 
@@ -271,6 +276,7 @@ class ChatDetailViewModel(
             ephemeralPublicKey = ephemeralPublicKey,
             messageCounter = messageCounter,
             isFromMe = isFromMe,
+            remoteDeviceId = if (isFromMe) receiptDeviceId else senderDeviceId,
         )
     }
 
@@ -341,8 +347,9 @@ class ChatDetailViewModel(
                     ciphertext = encryptedBytes,
                     ephemeralPublicKey = message.ephemeralPublicKey,
                     messageCounter = message.messageCounter,
-                    userId = message.userId,
-                    deviceId = message.deviceId
+                    userId = message.senderUserId,
+                    senderDeviceId = message.senderDeviceId,
+                    receiptDeviceId = message.recipientDeviceId,
                 )
                 val filename = message.attachment.originalFileName
                 val contentValues = ContentValues().apply {
@@ -375,7 +382,7 @@ class ChatDetailViewModel(
     suspend fun markMessagesAsSeen() {
         val chatId = chatId ?: return
         val messagesIds =
-            _state.value.messages.filter { it.status != MessageStatus.SEEN && it.userId != currentUser?.id }
+            _state.value.messages.filter { it.status != MessageStatus.SEEN && it.senderUserId != currentUser?.id }
                 .map { it.id }
 
         if (messagesIds.isEmpty()) {
