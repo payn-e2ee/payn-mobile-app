@@ -108,6 +108,7 @@ class DoubleRatchetEngine(
     suspend fun decryptStateless(
         ciphertext: ByteArray,
         ephemeralPublicKey: String,
+        remoteDeviceId: String,
         messageCounter: Int,
         isFromMe: Boolean
     ): ByteArray {
@@ -116,7 +117,7 @@ class DoubleRatchetEngine(
 
         val ratchetEpochEntity = if (isFromMe) {
             appDatabase.ratchetEpochDao()
-                .getRatchetEpochByLocalSendEphemeralPublicKey(ephemeralPublicKey)
+                .getRatchetEpochByDeviceId(remoteDeviceId)
         } else {
             appDatabase.ratchetEpochDao()
                 .getRatchetEpochByRemoteEphemeralPublicKey(ephemeralPublicKey)

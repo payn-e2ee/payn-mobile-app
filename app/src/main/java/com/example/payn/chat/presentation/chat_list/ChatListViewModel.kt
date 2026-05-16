@@ -56,7 +56,8 @@ class ChatListViewModel(
         ephemeralPublicKey: String,
         messageCounter: Int,
         userId: String,
-        deviceId: String
+        senderDeviceId: String,
+        receiptDeviceId: String
     ): String {
         val isFromMe = currentUser?.id == userId
 
@@ -66,7 +67,7 @@ class ChatListViewModel(
                     ciphertext = Base64.decode(ciphertext, Base64.DEFAULT),
                     remoteEphemeralPublicKey = ephemeralPublicKey,
                     messageCounter = messageCounter,
-                    remoteDeviceId = deviceId,
+                    remoteDeviceId = senderDeviceId,
                 )
             )
         }
@@ -77,6 +78,7 @@ class ChatListViewModel(
                 ephemeralPublicKey = ephemeralPublicKey,
                 messageCounter = messageCounter,
                 isFromMe = isFromMe,
+                remoteDeviceId = if (isFromMe) receiptDeviceId else senderDeviceId,
             )
         )
     }
