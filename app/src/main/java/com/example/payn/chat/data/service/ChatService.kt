@@ -17,8 +17,10 @@ import com.example.payn.core.data.AuthSessionManager
 import com.example.payn.core.data.dto.AttachmentDTO
 import com.example.payn.core.data.dto.UploadAttachmentFormDTO
 import com.example.payn.core.data.mappers.toAttachment
+import com.example.payn.core.data.mappers.toDevice
 import com.example.payn.core.data.network.MqttWebSocketClient
 import com.example.payn.core.data.repository.AttachmentRepository
+import com.example.payn.core.data.repository.UserRepository
 import com.example.payn.core.domain.models.User
 import com.example.payn.core.domain.onSuccess
 import kotlinx.coroutines.runBlocking
@@ -32,6 +34,7 @@ class ChatService(
     val authSessionManager: AuthSessionManager,
     val chatRepository: ChatRepository,
     val attachmentRepository: AttachmentRepository,
+    val userRepository: UserRepository
 ) {
 
     suspend fun initializeChat(onReady: () -> Unit) {
@@ -61,7 +64,14 @@ class ChatService(
     ): List<MessageFrameDTO> {
         log("sendMessage")
         var messageFrameDTOs: List<MessageFrameDTO> = emptyList()
-        for (device in user.devices) {
+
+        var devices = user.devices
+        userRepository.getUserById(currentUser.id).onSuccess { response ->
+            devices = devices + response.data.devices.map { it.toDevice() }
+                .filter { it.id != currentUser.devices.firstOrNull()?.id }
+        }
+
+        for (device in devices) {
             log("sendMessage to ${device.id}")
             val encryptedMessage = doubleRatchetEngine.encryptMessage(
                 content = content,
@@ -73,6 +83,7 @@ class ChatService(
                 encryptedMessage.ciphertext,
                 Base64.DEFAULT
             ) else ""
+            log("ciphertext=${ciphertext}")
             var attachment: AttachmentDTO? = null
             if (messageType == MessageTypeDTO.IMAGE || messageType == MessageTypeDTO.VOICE || messageType == MessageTypeDTO.FILE || messageType == MessageTypeDTO.VIDEO) {
                 attachmentRepository.uploadAttachment(

@@ -55,13 +55,15 @@ class ChatListViewModel(
         ciphertext: String,
         ephemeralPublicKey: String,
         messageCounter: Int,
-        userId: String,
-        senderDeviceId: String,
-        receiptDeviceId: String
+        senderDeviceId: String
     ): String {
-        val isFromMe = currentUser?.id == userId
+        val currentDeviceId = currentUser?.devices?.firstOrNull()?.id ?: return ""
+        val isFromCurrentDevice = senderDeviceId == currentDeviceId
 
-        if (!isFromMe && doubleRatchetEngine.isFirstTimeSeeingEphemeralPublicKey(ephemeralPublicKey)) {
+        if (!isFromCurrentDevice && doubleRatchetEngine.isFirstTimeSeeingEphemeralPublicKey(
+                ephemeralPublicKey
+            )
+        ) {
             return String(
                 doubleRatchetEngine.decryptMessage(
                     ciphertext = Base64.decode(ciphertext, Base64.DEFAULT),
@@ -77,8 +79,7 @@ class ChatListViewModel(
                 ciphertext = Base64.decode(ciphertext, Base64.DEFAULT),
                 ephemeralPublicKey = ephemeralPublicKey,
                 messageCounter = messageCounter,
-                isFromMe = isFromMe,
-                remoteDeviceId = if (isFromMe) receiptDeviceId else senderDeviceId,
+                isFromCurrentDevice = isFromCurrentDevice,
             )
         )
     }

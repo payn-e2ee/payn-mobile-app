@@ -103,18 +103,14 @@ fun MessagesBox(
                             ciphertext = Base64.decode(message.ciphertext, Base64.DEFAULT),
                             ephemeralPublicKey = message.ephemeralPublicKey,
                             messageCounter = message.messageCounter,
-                            userId = message.senderUserId,
                             senderDeviceId = message.senderDeviceId,
-                            receiptDeviceId = message.recipientDeviceId,
                         )
 
                     MessageType.IMAGE, MessageType.VOICE, MessageType.VIDEO -> viewModel.decryptMessage(
                         ciphertext = viewModel.getAttachmentFileBytes(message.attachment!!.id),
                         ephemeralPublicKey = message.ephemeralPublicKey,
                         messageCounter = message.messageCounter,
-                        userId = message.senderUserId,
                         senderDeviceId = message.senderDeviceId,
-                        receiptDeviceId = message.recipientDeviceId,
                     )
 
                     else -> "".toByteArray()
