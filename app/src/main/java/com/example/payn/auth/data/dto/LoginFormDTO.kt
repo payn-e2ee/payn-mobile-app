@@ -6,5 +6,4 @@ import kotlinx.serialization.Serializable
 data class LoginFormDTO(
     private val username: String,
     private val password: String,
-    private val base64_identity_key: String
 )

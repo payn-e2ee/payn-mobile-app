@@ -1,12 +1,13 @@
 package com.example.payn.auth.data.dto
 
-import com.example.payn.core.data.dto.UserDTO
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class AuthResponseDTO(
+data class RegisterDeviceFormDTO(
     @SerialName("access_token")
-    val accessToken: String,
-    val user: UserDTO
+    private val accessToken: String,
+
+    @SerialName("base64_identity_key")
+    private val base64IdentityKey: String
 )

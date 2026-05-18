@@ -2,6 +2,7 @@ package com.example.payn
 
 import android.app.Application
 import com.example.payn.core.data.AuthSessionManager
+import com.example.payn.core.data.DatabaseProvider
 import com.example.payn.core.data.KeyValueStorage
 import com.example.payn.di.appModule
 import io.ktor.client.HttpClient
@@ -30,6 +31,7 @@ class MainApplication : Application() {
         val httpClient = koin.get<HttpClient>()
         val keyValueStorage = koin.get<KeyValueStorage>()
         val authSessionManager = koin.get<AuthSessionManager>()
+        val databaseProvider = koin.get<DatabaseProvider>()
 
         httpClient.requestPipeline.intercept(HttpRequestPipeline.State) {
             val accessToken = keyValueStorage.getString("access_token").firstOrNull()
@@ -42,6 +44,10 @@ class MainApplication : Application() {
 
         runBlocking {
             authSessionManager.initializeSession()
+            val user = authSessionManager.getUser()
+            if (user != null) {
+                databaseProvider.createOrSwitchDatabase(applicationContext, user.id)
+            }
         }
     }
 }
