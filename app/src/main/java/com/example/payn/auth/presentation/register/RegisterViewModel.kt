@@ -4,8 +4,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.payn.auth.data.dto.RegisterFormDTO
 import com.example.payn.auth.data.repository.AuthRepository
-import com.example.payn.core.data.AppDatabase
-import com.example.payn.core.data.KeyValueStorage
 import com.example.payn.core.domain.DataError
 import com.example.payn.core.domain.FormErrors
 import com.example.payn.core.domain.onError
@@ -17,9 +15,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class RegisterViewModel(
-    private val appDatabase: AppDatabase,
-    private val authRepository: AuthRepository,
-    private val keyValueStorage: KeyValueStorage
+    private val authRepository: AuthRepository
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(RegisterFormState())

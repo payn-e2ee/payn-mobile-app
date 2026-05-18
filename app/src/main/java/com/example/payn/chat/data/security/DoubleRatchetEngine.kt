@@ -3,15 +3,15 @@ package com.example.payn.chat.data.security
 import android.util.Base64
 import android.util.Log
 import com.example.payn.chat.domain.RatchetEpoch
-import com.example.payn.core.data.AppDatabase
 import com.example.payn.core.data.CryptoManager
+import com.example.payn.core.data.DatabaseProvider
 import com.example.payn.core.domain.RatchetEpochEntity
 import com.example.payn.core.domain.RatchetStateEntity
 import org.bouncycastle.crypto.params.X25519PrivateKeyParameters
 import org.bouncycastle.crypto.params.X25519PublicKeyParameters
 
 class DoubleRatchetEngine(
-    val appDatabase: AppDatabase,
+    val databaseProvider: DatabaseProvider,
     val cryptoManager: CryptoManager
 ) {
     suspend fun encryptMessage(
@@ -20,7 +20,7 @@ class DoubleRatchetEngine(
         remoteIdentityKey: String,
     ): EncryptedMessage {
         var ratchetStateEntity =
-            appDatabase.ratchetStateDao().getRecentRatchetStateByDeviceId(remoteDeviceId)
+            databaseProvider.appDatabase?.ratchetStateDao()?.getRecentRatchetStateByDeviceId(remoteDeviceId)
         if (ratchetStateEntity == null) {
             log("Session establishment")
             ratchetStateEntity = initializeSenderSession(
@@ -50,13 +50,13 @@ class DoubleRatchetEngine(
         messageCounter: Int
     ): ByteArray {
         var ratchetStateEntity =
-            appDatabase.ratchetStateDao().getByRemoteEphemeralPublicKey(remoteEphemeralPublicKey)
+            databaseProvider.appDatabase?.ratchetStateDao()?.getByRemoteEphemeralPublicKey(remoteEphemeralPublicKey)
 
         var receiveChainKey = ratchetStateEntity?.receiveChainKey
 
         if (ratchetStateEntity == null) {
             ratchetStateEntity =
-                appDatabase.ratchetStateDao().getRecentRatchetStateByDeviceId(remoteDeviceId)
+                databaseProvider.appDatabase?.ratchetStateDao()?.getRecentRatchetStateByDeviceId(remoteDeviceId)
             ratchetStateEntity = if (ratchetStateEntity == null) {
                 initializeReceiverSession(
                     remoteDeviceId = remoteDeviceId,
@@ -115,11 +115,11 @@ class DoubleRatchetEngine(
         log("ephemeralPublicKey=$ephemeralPublicKey")
 
         val ratchetEpochEntity = if (isFromCurrentDevice) {
-            appDatabase.ratchetEpochDao()
-                .getRatchetEpochByLocalSendEphemeralPublicKey(ephemeralPublicKey)
+            databaseProvider.appDatabase?.ratchetEpochDao()
+                ?.getRatchetEpochByLocalSendEphemeralPublicKey(ephemeralPublicKey)
         } else {
-            appDatabase.ratchetEpochDao()
-                .getRatchetEpochByRemoteEphemeralPublicKey(ephemeralPublicKey)
+            databaseProvider.appDatabase?.ratchetEpochDao()
+                ?.getRatchetEpochByRemoteEphemeralPublicKey(ephemeralPublicKey)
         }
 
         if (ratchetEpochEntity != null) {
@@ -141,14 +141,14 @@ class DoubleRatchetEngine(
     suspend fun isSessionInitialized(
         deviceId: String
     ): Boolean {
-        return appDatabase.ratchetStateDao().getRecentRatchetStateByDeviceId(deviceId) != null
+        return databaseProvider.appDatabase?.ratchetStateDao()?.getRecentRatchetStateByDeviceId(deviceId) != null
     }
 
     suspend fun isFirstTimeSeeingEphemeralPublicKey(
         remoteEphemeralPublicKey: String
     ): Boolean {
-        return appDatabase.ratchetEpochDao()
-            .getRatchetEpochByRemoteEphemeralPublicKey(remoteEphemeralPublicKey) == null
+        return databaseProvider.appDatabase?.ratchetEpochDao()
+            ?.getRatchetEpochByRemoteEphemeralPublicKey(remoteEphemeralPublicKey) == null
     }
 
     private suspend fun initializeSenderSession(
@@ -175,10 +175,10 @@ class DoubleRatchetEngine(
             remoteEphemeralPublicKey = remoteIdentityKey,
         )
 
-        appDatabase.ratchetStateDao().insert(ratchetStateEntity)
+        databaseProvider.appDatabase?.ratchetStateDao()?.insert(ratchetStateEntity)
 
         // store epoch
-        appDatabase.ratchetEpochDao().insert(
+        databaseProvider.appDatabase?.ratchetEpochDao()?.insert(
             RatchetEpochEntity(
                 deviceId = remoteDeviceId,
 
@@ -223,10 +223,10 @@ class DoubleRatchetEngine(
 
             remoteEphemeralPublicKey = remoteEphemeralPublicKey,
         )
-        appDatabase.ratchetStateDao().insert(ratchetStateEntity)
+        databaseProvider.appDatabase?.ratchetStateDao()?.insert(ratchetStateEntity)
 
         // Store epoch
-        appDatabase.ratchetEpochDao().insert(
+        databaseProvider.appDatabase?.ratchetEpochDao()?.insert(
             RatchetEpochEntity(
                 deviceId = remoteDeviceId,
 
@@ -281,7 +281,7 @@ class DoubleRatchetEngine(
             remoteEphemeralPublicKey = remoteEphemeralPublicKey,
         )
 
-        appDatabase.ratchetStateDao().updateRatchetStateByDeviceId(
+        databaseProvider.appDatabase?.ratchetStateDao()?.updateRatchetStateByDeviceId(
             deviceId = remoteDeviceId,
 
             sendChainKey = sendRatchetEpoch.chainKey,
@@ -298,7 +298,7 @@ class DoubleRatchetEngine(
         )
 
         // Store epoch
-        appDatabase.ratchetEpochDao().insert(
+        databaseProvider.appDatabase?.ratchetEpochDao()?.insert(
             RatchetEpochEntity(
                 deviceId = remoteDeviceId,
 
@@ -346,7 +346,7 @@ class DoubleRatchetEngine(
         chainKey = newChainKeyAndMessageKey.sliceArray(0 until 32)
         val chainKeyBase64 = encodeToBase64(chainKey)
 
-        appDatabase.ratchetStateDao().updateSendChainStateByDeviceId(
+        databaseProvider.appDatabase?.ratchetStateDao()?.updateSendChainStateByDeviceId(
             deviceId = remoteDeviceId,
             sendChainKey = chainKeyBase64,
             sendMessageCounter = sendMessageCounter + 1
@@ -380,7 +380,7 @@ class DoubleRatchetEngine(
 
         // Update state
         chainKey = newChainKeyAndMessageKey.sliceArray(0 until 32)
-        appDatabase.ratchetStateDao().updateReceiveChainStateByDeviceId(
+        databaseProvider.appDatabase?.ratchetStateDao()?.updateReceiveChainStateByDeviceId(
             deviceId = remoteDeviceId,
             receiveChainKey = encodeToBase64(chainKey),
             receiveMessageCounter = receiveMessageCounter + 1,
@@ -433,7 +433,7 @@ class DoubleRatchetEngine(
     ): RatchetEpoch {
         log("initialRatchetEpoch:")
 
-        val localIdentityKeys = appDatabase.identityKeysDao().getIdentityKey()!!
+        val localIdentityKeys = databaseProvider.appDatabase?.identityKeysDao()?.getIdentityKey()!!
 
         val privateKey = decodeFromBase64(
             key = localIdentityKeys.encryptedPrivateKey,
