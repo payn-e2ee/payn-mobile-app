@@ -20,7 +20,7 @@ class DoubleRatchetEngine(
         remoteIdentityKey: String,
     ): EncryptedMessage {
         var ratchetStateEntity =
-            appDatabase.ratchetStateDao().getRatchetStateByDeviceId(remoteDeviceId)
+            appDatabase.ratchetStateDao().getRecentRatchetStateByDeviceId(remoteDeviceId)
         if (ratchetStateEntity == null) {
             log("Session establishment")
             ratchetStateEntity = initializeSenderSession(
@@ -56,7 +56,7 @@ class DoubleRatchetEngine(
 
         if (ratchetStateEntity == null) {
             ratchetStateEntity =
-                appDatabase.ratchetStateDao().getRatchetStateByDeviceId(remoteDeviceId)
+                appDatabase.ratchetStateDao().getRecentRatchetStateByDeviceId(remoteDeviceId)
             ratchetStateEntity = if (ratchetStateEntity == null) {
                 initializeReceiverSession(
                     remoteDeviceId = remoteDeviceId,
@@ -110,12 +110,12 @@ class DoubleRatchetEngine(
         ephemeralPublicKey: String,
         remoteDeviceId: String,
         messageCounter: Int,
-        isFromMe: Boolean
+        isFromCurrentDevice: Boolean
     ): ByteArray {
-        log("isFromMe=$isFromMe")
+        log("isFromCurrentDevice=$isFromCurrentDevice")
         log("ephemeralPublicKey=$ephemeralPublicKey")
 
-        val ratchetEpochEntity = if (isFromMe) {
+        val ratchetEpochEntity = if (isFromCurrentDevice) {
             appDatabase.ratchetEpochDao()
                 .getRatchetEpochByDeviceId(remoteDeviceId)
         } else {
@@ -131,7 +131,7 @@ class DoubleRatchetEngine(
             log("localReceiveEphemeralPublicKey=${ratchetEpochEntity.localReceiveEphemeralPublicKey}")
             return decryptAtCounter(
                 ciphertext = ciphertext,
-                epochReceiveChainKey = if (isFromMe) ratchetEpochEntity.sendChainKey else ratchetEpochEntity.receiveChainKey,
+                epochReceiveChainKey = if (isFromCurrentDevice) ratchetEpochEntity.sendChainKey else ratchetEpochEntity.receiveChainKey,
                 messageCounter = messageCounter
             )
         }
@@ -142,7 +142,7 @@ class DoubleRatchetEngine(
     suspend fun isSessionInitialized(
         deviceId: String
     ): Boolean {
-        return appDatabase.ratchetStateDao().getRatchetStateByDeviceId(deviceId) != null
+        return appDatabase.ratchetStateDao().getRecentRatchetStateByDeviceId(deviceId) != null
     }
 
     suspend fun isFirstTimeSeeingEphemeralPublicKey(
@@ -373,7 +373,7 @@ class DoubleRatchetEngine(
 
         log("receiveChainKey=${encodeToBase64(chainKey)}")
         log("messageKey=${encodeToBase64(messageKey)}")
-
+        log("ciphertext=${encodeToBase64(ciphertext)}")
         val plaintext = cryptoManager.decryptWithKey(
             data = ciphertext,
             key = messageKey

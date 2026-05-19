@@ -12,8 +12,8 @@ interface RatchetStateDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(entity: RatchetStateEntity)
 
-    @Query("SELECT * FROM ratchet_states WHERE deviceId = :deviceId limit 1")
-    suspend fun getRatchetStateByDeviceId(deviceId: String): RatchetStateEntity?
+    @Query("SELECT * FROM ratchet_states WHERE deviceId = :deviceId ORDER BY createdAt DESC limit 1")
+    suspend fun getRecentRatchetStateByDeviceId(deviceId: String): RatchetStateEntity?
 
     @Query("SELECT * FROM ratchet_states WHERE remoteEphemeralPublicKey = :remoteEphemeralPublicKey limit 1")
     suspend fun getByRemoteEphemeralPublicKey(remoteEphemeralPublicKey: String): RatchetStateEntity?
