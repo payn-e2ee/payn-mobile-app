@@ -3,8 +3,8 @@ package com.example.payn.auth.presentation.login
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.payn.auth.data.repository.AuthRepository
-import com.example.payn.core.data.AppDatabase
 import com.example.payn.core.data.AuthSessionManager
+import com.example.payn.core.data.DatabaseProvider
 import com.example.payn.core.data.KeyValueStorage
 import com.example.payn.core.domain.DataError
 import com.example.payn.core.domain.FormErrors
@@ -17,7 +17,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class LoginViewModel(
-    private val appDatabase: AppDatabase,
+    private val databaseProvider: DatabaseProvider,
     private val authRepository: AuthRepository,
     private val keyValueStorage: KeyValueStorage,
     private val authSessionManager: AuthSessionManager
@@ -61,7 +61,8 @@ class LoginViewModel(
         setIsLoading(true)
 
         viewModelScope.launch {
-            val identityKey = appDatabase.identityKeysDao().getIdentityKey()?.publicKey ?: ""
+            val identityKey =
+                databaseProvider.appDatabase?.identityKeysDao()?.getIdentityKey()?.publicKey ?: ""
             authRepository.login(
                 state.value.username,
                 state.value.password,
