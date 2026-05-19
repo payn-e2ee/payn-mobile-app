@@ -173,6 +173,7 @@ fun LoginScreen(
                             .background(Blue500)
                             .clickable {
                                 viewModel.submit(
+                                    context = context,
                                     onSuccess = { navController.navigate(Route.Chats) },
                                     onError = { message ->
                                         Toast.makeText(

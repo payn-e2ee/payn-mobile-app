@@ -1,7 +1,9 @@
 package com.example.payn.auth.data.network
 
-import com.example.payn.auth.data.dto.AuthResponseDTO
 import com.example.payn.auth.data.dto.LoginFormDTO
+import com.example.payn.auth.data.dto.LoginResponseDTO
+import com.example.payn.auth.data.dto.RegisterDeviceFormDTO
+import com.example.payn.auth.data.dto.RegisterDeviceResponseDTO
 import com.example.payn.auth.data.dto.RegisterFormDTO
 import com.example.payn.auth.data.dto.RegisterResponseDTO
 import com.example.payn.auth.data.dto.SendOtpFormDTO
@@ -22,13 +24,24 @@ import io.ktor.http.contentType
 private const val BASE_URL = "${AppConfig.BASE_API_URL}/auth"
 
 class AuthDataSource(private val httpClient: HttpClient) {
-    suspend fun login(loginForm: LoginFormDTO): Result<ApiResponse<AuthResponseDTO>, DataError.Remote> {
+    suspend fun login(loginForm: LoginFormDTO): Result<ApiResponse<LoginResponseDTO>, DataError.Remote> {
         return safeCall {
             httpClient.post(
                 urlString = "$BASE_URL/login"
             ) {
                 contentType(ContentType.Application.Json)
                 setBody(loginForm)
+            }
+        }
+    }
+
+    suspend fun registerDevice(registerDeviceForm: RegisterDeviceFormDTO): Result<ApiResponse<RegisterDeviceResponseDTO>, DataError.Remote> {
+        return safeCall {
+            httpClient.post(
+                urlString = "$BASE_URL/devices"
+            ) {
+                contentType(ContentType.Application.Json)
+                setBody(registerDeviceForm)
             }
         }
     }

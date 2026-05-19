@@ -1,7 +1,9 @@
 package com.example.payn.auth.data.repository
 
-import com.example.payn.auth.data.dto.AuthResponseDTO
 import com.example.payn.auth.data.dto.LoginFormDTO
+import com.example.payn.auth.data.dto.LoginResponseDTO
+import com.example.payn.auth.data.dto.RegisterDeviceFormDTO
+import com.example.payn.auth.data.dto.RegisterDeviceResponseDTO
 import com.example.payn.auth.data.dto.RegisterFormDTO
 import com.example.payn.auth.data.dto.RegisterResponseDTO
 import com.example.payn.auth.data.dto.SendOtpFormDTO
@@ -18,17 +20,16 @@ class AuthRepository(
 ) {
     suspend fun login(
         username: String,
-        password: String,
+        password: String
+    ): Result<ApiResponse<LoginResponseDTO>, DataError.Remote> {
+        return authDataSource.login(LoginFormDTO(username, password))
+    }
+
+    suspend fun registerDevice(
+        accessToken: String,
         identityKey: String
-    ): Result<ApiResponse<AuthResponseDTO>, DataError.Remote> {
-        return authDataSource
-            .login(
-                LoginFormDTO(
-                    username,
-                    password,
-                    identityKey
-                )
-            )
+    ): Result<ApiResponse<RegisterDeviceResponseDTO>, DataError.Remote> {
+        return authDataSource.registerDevice(RegisterDeviceFormDTO(accessToken, identityKey))
     }
 
     suspend fun sendOtp(
