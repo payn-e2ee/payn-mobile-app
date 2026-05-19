@@ -256,13 +256,16 @@ class ChatDetailViewModel(
         ciphertext: ByteArray,
         ephemeralPublicKey: String,
         messageCounter: Int,
-        userId: String,
         senderDeviceId: String,
         receiptDeviceId: String
     ): ByteArray {
-        val isFromMe = currentUser?.id == userId
+        val currentDeviceId = currentUser?.devices?.firstOrNull()?.id ?: return "".toByteArray()
+        val isFromCurrentDevice = senderDeviceId == currentDeviceId
 
-        if (!isFromMe && doubleRatchetEngine.isFirstTimeSeeingEphemeralPublicKey(ephemeralPublicKey)) {
+        if (!isFromCurrentDevice && doubleRatchetEngine.isFirstTimeSeeingEphemeralPublicKey(
+                ephemeralPublicKey
+            )
+        ) {
             return doubleRatchetEngine.decryptMessage(
                 ciphertext = ciphertext,
                 remoteEphemeralPublicKey = ephemeralPublicKey,
@@ -275,8 +278,8 @@ class ChatDetailViewModel(
             ciphertext = ciphertext,
             ephemeralPublicKey = ephemeralPublicKey,
             messageCounter = messageCounter,
-            isFromMe = isFromMe,
-            remoteDeviceId = if (isFromMe) receiptDeviceId else senderDeviceId,
+            isFromCurrentDevice = isFromCurrentDevice,
+            remoteDeviceId = if (isFromCurrentDevice) receiptDeviceId else senderDeviceId,
         )
     }
 
@@ -347,7 +350,6 @@ class ChatDetailViewModel(
                     ciphertext = encryptedBytes,
                     ephemeralPublicKey = message.ephemeralPublicKey,
                     messageCounter = message.messageCounter,
-                    userId = message.senderUserId,
                     senderDeviceId = message.senderDeviceId,
                     receiptDeviceId = message.recipientDeviceId,
                 )
