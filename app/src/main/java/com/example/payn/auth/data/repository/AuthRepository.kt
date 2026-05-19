@@ -19,14 +19,16 @@ class AuthRepository(
     suspend fun login(
         username: String,
         password: String,
-        identityKey: String
+        identityKey: String,
+        fcmToken: String? = null
     ): Result<ApiResponse<AuthResponseDTO>, DataError.Remote> {
         return authDataSource
             .login(
                 LoginFormDTO(
                     username,
                     password,
-                    identityKey
+                    identityKey,
+                    fcmToken
                 )
             )
     }

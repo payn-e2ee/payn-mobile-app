@@ -15,6 +15,9 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
+import com.google.firebase.messaging.FirebaseMessaging
+import android.util.Log
 
 class LoginViewModel(
     private val appDatabase: AppDatabase,
@@ -62,10 +65,19 @@ class LoginViewModel(
 
         viewModelScope.launch {
             val identityKey = appDatabase.identityKeysDao().getIdentityKey()?.publicKey ?: ""
+            
+            val fcmToken = try {
+                FirebaseMessaging.getInstance().token.await()
+            } catch (e: Exception) {
+                Log.e("LoginViewModel", "Failed to get FCM token", e)
+                null
+            }
+
             authRepository.login(
                 state.value.username,
                 state.value.password,
-                identityKey
+                identityKey,
+                fcmToken
             ).onSuccess {
                 keyValueStorage.putString("access_token", it.data.accessToken)
                 authSessionManager.initializeSession()
