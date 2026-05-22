@@ -13,6 +13,7 @@
 .externalNativeBuild
 .cxx
 local.properties
+app/google-services.json
 
 # app config file
 app/src/main/java/com/example/payn/core/config/AppConfig.kt

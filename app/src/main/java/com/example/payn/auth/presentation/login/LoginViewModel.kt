@@ -20,6 +20,9 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.bouncycastle.crypto.params.X25519PrivateKeyParameters
 import org.bouncycastle.crypto.params.X25519PublicKeyParameters
+import kotlinx.coroutines.tasks.await
+import com.google.firebase.messaging.FirebaseMessaging
+import android.util.Log
 
 class LoginViewModel(
     private val databaseProvider: DatabaseProvider,
@@ -67,9 +70,15 @@ class LoginViewModel(
         setIsLoading(true)
 
         viewModelScope.launch {
+            val fcmToken = try {
+                FirebaseMessaging.getInstance().token.await()
+            } catch (e: Exception) {
+                Log.e("LoginViewModel", "Failed to get FCM token", e)
+                null
+            }
             authRepository.login(
                 state.value.username,
-                state.value.password
+                state.value.password,
             ).onSuccess { response ->
                 val user = response.data.user
                 val deviceRegistrationToken = response.data.accessToken
@@ -103,11 +112,12 @@ class LoginViewModel(
                     )
                 }
 
-                authRepository.registerDevice(deviceRegistrationToken, identityKey).onSuccess {
-                    keyValueStorage.putString("access_token", it.data.accessToken)
-                    authSessionManager.initializeSession()
-                    onSuccess()
-                }
+                authRepository.registerDevice(deviceRegistrationToken, identityKey, fcmToken)
+                    .onSuccess {
+                        keyValueStorage.putString("access_token", it.data.accessToken)
+                        authSessionManager.initializeSession()
+                        onSuccess()
+                    }
             }.onError { err ->
                 if (err is DataError.Remote.BAD_REQUEST) {
                     onError(err.message)

@@ -28,6 +28,8 @@ import com.example.payn.core.data.network.MqttWebSocketClient
 import com.example.payn.core.data.network.UserDataSource
 import com.example.payn.core.data.repository.AttachmentRepository
 import com.example.payn.core.data.repository.UserRepository
+import com.example.payn.core.data.PaynNotificationManager
+import com.example.payn.settings.presentation.NotificationsViewModel
 import com.example.payn.settings.presentation.edit_profile.EditProfileViewModel
 import io.ktor.client.engine.HttpClientEngine
 import io.ktor.client.engine.okhttp.OkHttp
@@ -63,6 +65,9 @@ val appModule = module {
     single {
         KeyValueStorage(androidApplication())
     }
+    single {
+        PaynNotificationManager(androidApplication(), get())
+    }
     single { FileManager(androidApplication()) }
 
     viewModelOf(::WelcomeViewModel)
@@ -74,4 +79,5 @@ val appModule = module {
     viewModelOf(::ContactDetailViewModel)
     viewModelOf(::SettingsViewModel)
     viewModelOf(::EditProfileViewModel)
+    viewModelOf(::NotificationsViewModel)
 }

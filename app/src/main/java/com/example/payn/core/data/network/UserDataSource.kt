@@ -29,6 +29,16 @@ class UserDataSource(private val httpClient: HttpClient) {
         }
     }
 
+    suspend fun updateFcmToken(token: String): Result<ApiResponse<Unit>, DataError.Remote> {
+        return safeCall {
+            httpClient.patch(
+                urlString = "$BASE_URL/fcm-token"
+            ) {
+                setBody(mapOf("fcm_token" to token))
+            }
+        }
+    }
+
     suspend fun getUserById(userId: String): Result<ApiResponse<UserDTO>, DataError.Remote> {
         return safeCall {
             httpClient.get(

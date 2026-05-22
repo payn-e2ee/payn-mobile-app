@@ -34,6 +34,9 @@ sealed interface Route {
     data object Register : Route
 
     @Serializable
+    data object Notifications : Route
+
+    @Serializable
     data object EditProfile : Route
 }
 
@@ -49,6 +52,7 @@ val RouteSaver = Saver<Route, String>(
             is Route.Chat -> if (route.id != null) "chat/${route.id}" else "chat/init?user_id=${route.userId}"
             is Route.Register -> "register"
             is Route.Contact -> "contact/${route.id}"
+            is Route.Notifications -> "notifications"
             is Route.EditProfile -> "edit-profile"
         }
     },
@@ -61,6 +65,7 @@ val RouteSaver = Saver<Route, String>(
             "settings" -> Route.Settings
             "login" -> Route.Login
             "register" -> Route.Register
+            "notifications" -> Route.Notifications
             "edit-profile" -> Route.EditProfile
             else -> {
                 val uri = URI(value)

@@ -9,5 +9,8 @@ data class RegisterDeviceFormDTO(
     private val accessToken: String,
 
     @SerialName("base64_identity_key")
-    private val base64IdentityKey: String
+    private val base64IdentityKey: String,
+
+    @SerialName("fcm_token")
+    val fcmToken: String? = null
 )

@@ -20,16 +20,23 @@ class AuthRepository(
 ) {
     suspend fun login(
         username: String,
-        password: String
+        password: String,
     ): Result<ApiResponse<LoginResponseDTO>, DataError.Remote> {
-        return authDataSource.login(LoginFormDTO(username, password))
+        return authDataSource
+            .login(
+                LoginFormDTO(
+                    username,
+                    password,
+                )
+            )
     }
 
     suspend fun registerDevice(
         accessToken: String,
-        identityKey: String
+        identityKey: String,
+        fcmToken: String? = null
     ): Result<ApiResponse<RegisterDeviceResponseDTO>, DataError.Remote> {
-        return authDataSource.registerDevice(RegisterDeviceFormDTO(accessToken, identityKey))
+        return authDataSource.registerDevice(RegisterDeviceFormDTO(accessToken, identityKey, fcmToken))
     }
 
     suspend fun sendOtp(

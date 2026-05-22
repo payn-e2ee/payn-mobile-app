@@ -1,6 +1,7 @@
 package com.example.payn.settings.presentation
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -24,15 +25,18 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.composables.icons.lucide.LogOut
+import com.composables.icons.lucide.Bell
 import com.composables.icons.lucide.Lucide
 import com.example.payn.app.Route
 import com.example.payn.core.presentation.components.GlassCard
 import com.example.payn.settings.presentation.components.UserProfileHeader
 import com.example.payn.ui.theme.Blue400
+import com.example.payn.ui.theme.Blue500
 import com.example.payn.ui.theme.Pink400
 import com.example.payn.ui.theme.Purple400
 import com.example.payn.ui.theme.Red500
 import com.example.payn.ui.theme.White
+import com.example.payn.ui.theme.Gray900
 
 @Composable
 fun SettingsScreen(
@@ -71,6 +75,44 @@ fun SettingsScreen(
                 )
             }
 
+            // Notifications Button
+            GlassCard(
+                modifier = Modifier.fillMaxWidth(),
+                onClick = {
+                    navController.navigate(Route.Notifications)
+                }
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(40.dp)
+                            .clip(CircleShape)
+                            .background(Blue500.copy(alpha = 0.15f)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = Lucide.Bell,
+                            contentDescription = "Notifications",
+                            tint = Blue500,
+                            modifier = Modifier.size(20.dp)
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.width(16.dp))
+
+                    Text(
+                        text = "Notifications",
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        color = if (isSystemInDarkTheme()) White else Gray900
+                    )
+                }
+            }
             UserProfileHeader(
                 user = viewModel.currentUser,
                 onEdit = { navController.navigate(Route.EditProfile) }
