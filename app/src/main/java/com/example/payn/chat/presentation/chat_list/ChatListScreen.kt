@@ -103,7 +103,8 @@ fun ChatListScreen(
                 modifier = Modifier.fillMaxSize()
             ) {
                 items(state.chats, key = { it.id }) { chat ->
-                    val otherMember = chat.chatMembers!!.first { it.user?.id != "" }
+                    val otherMember =
+                        chat.chatMembers!!.first { it.user?.id != viewModel.currentUser?.id }
                     val chatName = "${otherMember.user?.firstname} ${otherMember.user?.lastname}"
                     val message = chat.messages?.firstOrNull()
                     val messageDelivery = message?.messageDeliveries?.first()
@@ -116,7 +117,6 @@ fun ChatListScreen(
                                     ciphertext = messageDelivery.ciphertext,
                                     ephemeralPublicKey = messageDelivery.ephemeralPublicKey,
                                     messageCounter = messageDelivery.messageCounter,
-                                    userId = messageDelivery.senderUserId,
                                     senderDeviceId = messageDelivery.senderDeviceId,
                                     receiptDeviceId = messageDelivery.recipientDeviceId,
                                 )

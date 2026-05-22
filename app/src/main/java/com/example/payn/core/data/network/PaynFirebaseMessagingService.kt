@@ -71,7 +71,7 @@ class PaynFirebaseMessagingService : FirebaseMessagingService() {
                                         ephemeralPublicKey = ephemeralPublicKey,
                                         messageCounter = messageCounter,
                                         remoteDeviceId = senderDeviceId,
-                                        isFromMe = false,
+                                        isFromCurrentDevice = false,
                                     )
                                 )
                             }

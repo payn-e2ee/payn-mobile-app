@@ -1,13 +1,16 @@
 package com.example.payn.auth.presentation.login
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.payn.auth.data.repository.AuthRepository
-import com.example.payn.core.data.AppDatabase
 import com.example.payn.core.data.AuthSessionManager
+import com.example.payn.core.data.CryptoManager
+import com.example.payn.core.data.DatabaseProvider
 import com.example.payn.core.data.KeyValueStorage
 import com.example.payn.core.domain.DataError
 import com.example.payn.core.domain.FormErrors
+import com.example.payn.core.domain.IdentityKeysEntity
 import com.example.payn.core.domain.onError
 import com.example.payn.core.domain.onSuccess
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -15,15 +18,18 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import org.bouncycastle.crypto.params.X25519PrivateKeyParameters
+import org.bouncycastle.crypto.params.X25519PublicKeyParameters
 import kotlinx.coroutines.tasks.await
 import com.google.firebase.messaging.FirebaseMessaging
 import android.util.Log
 
 class LoginViewModel(
-    private val appDatabase: AppDatabase,
+    private val databaseProvider: DatabaseProvider,
     private val authRepository: AuthRepository,
     private val keyValueStorage: KeyValueStorage,
-    private val authSessionManager: AuthSessionManager
+    private val authSessionManager: AuthSessionManager,
+    private val cryptoManager: CryptoManager
 ) : ViewModel() {
     private val _state = MutableStateFlow(LoginFormState())
     val state = _state
@@ -60,28 +66,58 @@ class LoginViewModel(
         }
     }
 
-    fun submit(onSuccess: () -> Unit, onError: (message: String) -> Unit) {
+    fun submit(context: Context, onSuccess: () -> Unit, onError: (message: String) -> Unit) {
         setIsLoading(true)
 
         viewModelScope.launch {
-            val identityKey = appDatabase.identityKeysDao().getIdentityKey()?.publicKey ?: ""
-            
             val fcmToken = try {
                 FirebaseMessaging.getInstance().token.await()
             } catch (e: Exception) {
                 Log.e("LoginViewModel", "Failed to get FCM token", e)
                 null
             }
-
             authRepository.login(
                 state.value.username,
                 state.value.password,
-                identityKey,
-                fcmToken
-            ).onSuccess {
-                keyValueStorage.putString("access_token", it.data.accessToken)
-                authSessionManager.initializeSession()
-                onSuccess()
+            ).onSuccess { response ->
+                val user = response.data.user
+                val deviceRegistrationToken = response.data.accessToken
+                databaseProvider.createOrSwitchDatabase(context, user.id)
+
+                val identityKeyEntity =
+                    databaseProvider.appDatabase?.identityKeysDao()?.getIdentityKey()
+                var identityKey = identityKeyEntity?.publicKey ?: ""
+                if (identityKeyEntity == null) {
+                    val identityKeyPair = cryptoManager.generateX25519KeyPair()
+                    val privateKey = identityKeyPair.private as X25519PrivateKeyParameters
+                    val publicKey = identityKeyPair.public as X25519PublicKeyParameters
+                    val privateKeyEncrypted =
+                        cryptoManager.encrypt(privateKey.encoded)
+                    val privateKeyEncryptedBase64 = android.util.Base64.encodeToString(
+                        privateKeyEncrypted,
+                        android.util.Base64.DEFAULT
+                    )
+                    val publicKeyBase64 = android.util.Base64.encodeToString(
+                        publicKey.encoded,
+                        android.util.Base64.DEFAULT
+                    )
+
+                    identityKey = publicKeyBase64
+
+                    databaseProvider.appDatabase?.identityKeysDao()?.insert(
+                        IdentityKeysEntity(
+                            encryptedPrivateKey = privateKeyEncryptedBase64,
+                            publicKey = publicKeyBase64,
+                        )
+                    )
+                }
+
+                authRepository.registerDevice(deviceRegistrationToken, identityKey, fcmToken)
+                    .onSuccess {
+                        keyValueStorage.putString("access_token", it.data.accessToken)
+                        authSessionManager.initializeSession()
+                        onSuccess()
+                    }
             }.onError { err ->
                 if (err is DataError.Remote.BAD_REQUEST) {
                     onError(err.message)
