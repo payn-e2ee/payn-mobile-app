@@ -119,7 +119,9 @@ fun AppNavHost(
         }
 
         composable<Route.Notifications> {
+            val viewModel = koinViewModel<com.example.payn.settings.presentation.NotificationsViewModel>()
             NotificationsScreen(
+                viewModel = viewModel,
                 navController = navController
             )
         }

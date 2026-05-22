@@ -55,13 +55,16 @@ import com.example.payn.ui.theme.Purple400
 import com.example.payn.ui.theme.Purple900
 import com.example.payn.ui.theme.White
 
+import androidx.compose.runtime.collectAsState
+
 @Composable
 fun NotificationsScreen(
+    viewModel: NotificationsViewModel,
     navController: NavHostController
 ) {
-    var messageNotificationsEnabled by remember { mutableStateOf(true) }
-    var notificationSoundEnabled by remember { mutableStateOf(true) }
-    var vibrationEnabled by remember { mutableStateOf(true) }
+    val messageNotificationsEnabled by viewModel.messageNotificationsEnabled.collectAsState()
+    val notificationSoundEnabled by viewModel.notificationSoundEnabled.collectAsState()
+    val vibrationEnabled by viewModel.vibrationEnabled.collectAsState()
 
     val backgroundGradient = if (isSystemInDarkTheme()) {
         Brush.linearGradient(listOf(Blue900, Purple900, Pink900))
@@ -156,7 +159,7 @@ fun NotificationsScreen(
                 icon = Lucide.MessageCircle,
                 iconColor = Blue500,
                 isEnabled = messageNotificationsEnabled,
-                onCheckedChange = { messageNotificationsEnabled = it }
+                onCheckedChange = { viewModel.setMessageNotificationsEnabled(it) }
             )
 
             Spacer(modifier = Modifier.height(32.dp))
@@ -176,7 +179,7 @@ fun NotificationsScreen(
                 icon = Lucide.Volume2,
                 iconColor = Blue500,
                 isEnabled = notificationSoundEnabled,
-                onCheckedChange = { notificationSoundEnabled = it }
+                onCheckedChange = { viewModel.setNotificationSoundEnabled(it) }
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -187,7 +190,7 @@ fun NotificationsScreen(
                 icon = Lucide.Bell,
                 iconColor = Blue500,
                 isEnabled = vibrationEnabled,
-                onCheckedChange = { vibrationEnabled = it }
+                onCheckedChange = { viewModel.setVibrationEnabled(it) }
             )
 
             Spacer(modifier = Modifier.height(120.dp))

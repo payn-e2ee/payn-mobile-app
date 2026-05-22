@@ -12,13 +12,18 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import com.example.payn.R
+import kotlinx.coroutines.flow.first
 
-class PaynNotificationManager(private val context: Context) {
+class PaynNotificationManager(
+    private val context: Context,
+    private val keyValueStorage: KeyValueStorage
+) {
 
     companion object {
-        const val CHANNEL_MESSAGES_ID = "messages_channel"
-        const val CHANNEL_MESSAGES_NAME = "Messages"
-        const val CHANNEL_MESSAGES_DESCRIPTION = "Notifications for new messages"
+        const val CHANNEL_SOUND_VIBE = "messages_channel_sound_vibe"
+        const val CHANNEL_SOUND_NOVIBE = "messages_channel_sound_novibe"
+        const val CHANNEL_NOSOUND_VIBE = "messages_channel_nosound_vibe"
+        const val CHANNEL_NOSOUND_NOVIBE = "messages_channel_nosound_novibe"
         
         const val NOTIFICATION_ID_MESSAGE = 1001
     }
@@ -29,20 +34,64 @@ class PaynNotificationManager(private val context: Context) {
 
     private fun createNotificationChannels() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val importance = NotificationManager.IMPORTANCE_HIGH
-            val channel = NotificationChannel(CHANNEL_MESSAGES_ID, CHANNEL_MESSAGES_NAME, importance).apply {
-                description = CHANNEL_MESSAGES_DESCRIPTION
+            val notificationManager =
+                context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+
+            // 1. Sound: Yes, Vibration: Yes
+            val chSoundVibe = NotificationChannel(
+                CHANNEL_SOUND_VIBE,
+                "Messages (Sound & Vibration)",
+                NotificationManager.IMPORTANCE_HIGH
+            ).apply {
+                description = "Notifications with sound and vibration"
                 enableLights(true)
                 enableVibration(true)
             }
-            
-            val notificationManager: NotificationManager =
-                context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-            notificationManager.createNotificationChannel(channel)
+
+            // 2. Sound: Yes, Vibration: No
+            val chSoundNoVibe = NotificationChannel(
+                CHANNEL_SOUND_NOVIBE,
+                "Messages (Sound Only)",
+                NotificationManager.IMPORTANCE_HIGH
+            ).apply {
+                description = "Notifications with sound only"
+                enableLights(true)
+                enableVibration(false)
+                vibrationPattern = longArrayOf(0)
+            }
+
+            // 3. Sound: No, Vibration: Yes
+            val chNoSoundVibe = NotificationChannel(
+                CHANNEL_NOSOUND_VIBE,
+                "Messages (Vibration Only)",
+                NotificationManager.IMPORTANCE_HIGH
+            ).apply {
+                description = "Notifications with vibration only"
+                enableLights(true)
+                enableVibration(true)
+                setSound(null, null)
+            }
+
+            // 4. Sound: No, Vibration: No
+            val chNoSoundNoVibe = NotificationChannel(
+                CHANNEL_NOSOUND_NOVIBE,
+                "Messages (Silent)",
+                NotificationManager.IMPORTANCE_HIGH
+            ).apply {
+                description = "Silent notifications"
+                enableLights(true)
+                enableVibration(false)
+                vibrationPattern = longArrayOf(0)
+                setSound(null, null)
+            }
+
+            notificationManager.createNotificationChannel(chSoundVibe)
+            notificationManager.createNotificationChannel(chSoundNoVibe)
+            notificationManager.createNotificationChannel(chNoSoundVibe)
+            notificationManager.createNotificationChannel(chNoSoundNoVibe)
         }
     }
 
- 
     fun hasNotificationPermission(): Boolean {
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             ContextCompat.checkSelfPermission(
@@ -54,17 +103,37 @@ class PaynNotificationManager(private val context: Context) {
         }
     }
 
+    private suspend fun getSelectedChannelId(): String {
+        val sound = keyValueStorage.getBoolean("notification_sound_enabled", true).first()
+        val vibe = keyValueStorage.getBoolean("vibration_enabled", true).first()
+        
+        return when {
+            sound && vibe -> CHANNEL_SOUND_VIBE
+            sound && !vibe -> CHANNEL_SOUND_NOVIBE
+            !sound && vibe -> CHANNEL_NOSOUND_VIBE
+            else -> CHANNEL_NOSOUND_NOVIBE
+        }
+    }
+
     /**
+     * Shows a simple notification.
      * 
      * @param title
      * @param message 
      * @param intent Optional intent to trigger when the notification is clicked
      */
-    fun showSimpleNotification(
+    suspend fun showSimpleNotification(
         title: String,
         message: String,
         intent: Intent? = null
     ) {
+        val enabled = keyValueStorage.getBoolean("message_notifications_enabled", true).first()
+        if (!enabled) {
+            return
+        }
+
+        val channelId = getSelectedChannelId()
+
         val pendingIntent = intent?.let {
             PendingIntent.getActivity(
                 context, 
@@ -74,7 +143,7 @@ class PaynNotificationManager(private val context: Context) {
             )
         }
 
-        val builder = NotificationCompat.Builder(context, CHANNEL_MESSAGES_ID)
+        val builder = NotificationCompat.Builder(context, channelId)
             .setSmallIcon(R.drawable.ic_launcher_foreground)
             .setContentTitle(title)
             .setContentText(message)
@@ -96,12 +165,19 @@ class PaynNotificationManager(private val context: Context) {
      * @param shortMessage
      * @param longMessage the message shown when expanded
      */
-    fun showExpandableNotification(
+    suspend fun showExpandableNotification(
         title: String,
         shortMessage: String,
         longMessage: String
     ) {
-        val builder = NotificationCompat.Builder(context, CHANNEL_MESSAGES_ID)
+        val enabled = keyValueStorage.getBoolean("message_notifications_enabled", true).first()
+        if (!enabled) {
+            return
+        }
+
+        val channelId = getSelectedChannelId()
+
+        val builder = NotificationCompat.Builder(context, channelId)
             .setSmallIcon(R.drawable.ic_launcher_foreground)
             .setContentTitle(title)
             .setContentText(shortMessage)
@@ -116,11 +192,9 @@ class PaynNotificationManager(private val context: Context) {
         }
     }
 
-
     fun cancelNotification(notificationId: Int) {
         NotificationManagerCompat.from(context).cancel(notificationId)
     }
-
 
     fun cancelAllNotifications() {
         NotificationManagerCompat.from(context).cancelAll()

@@ -41,19 +41,19 @@ class PaynFirebaseMessagingService : FirebaseMessagingService() {
 
         // handle data payload
         if (message.data.isNotEmpty()) {
-            val type = message.data["type"]
-            val title = message.data["title"] ?: "New Message"
-            val body = message.data["body"] ?: ""
+            serviceScope.launch {
+                val type = message.data["type"]
+                val title = message.data["title"] ?: "New Message"
+                val body = message.data["body"] ?: ""
 
-            if (type == "message") {
-                val ciphertext = message.data["ciphertext"]
-                val ephemeralPublicKey = message.data["ephemeral_public_key"]
-                val messageCounter = message.data["message_counter"]?.toIntOrNull() ?: 0
-                val senderUserId = message.data["sender_user_id"] ?: ""
-                val senderDeviceId = message.data["sender_device_id"] ?: ""
+                if (type == "message") {
+                    val ciphertext = message.data["ciphertext"]
+                    val ephemeralPublicKey = message.data["ephemeral_public_key"]
+                    val messageCounter = message.data["message_counter"]?.toIntOrNull() ?: 0
+                    val senderUserId = message.data["sender_user_id"] ?: ""
+                    val senderDeviceId = message.data["sender_device_id"] ?: ""
 
-                if (ciphertext != null && ephemeralPublicKey != null) {
-                    serviceScope.launch {
+                    if (ciphertext != null && ephemeralPublicKey != null) {
                         try {
                             val decryptedBody = if (doubleRatchetEngine.isFirstTimeSeeingEphemeralPublicKey(ephemeralPublicKey)) {
                                 String(
@@ -87,18 +87,18 @@ class PaynFirebaseMessagingService : FirebaseMessagingService() {
                                 message = "Sent you a message" // fallback
                             )
                         }
+                    } else {
+                        notificationManager.showSimpleNotification(
+                            title = title,
+                            message = "Sent you a message"
+                        )
                     }
                 } else {
                     notificationManager.showSimpleNotification(
                         title = title,
-                        message = "Sent you a message"
+                        message = body
                     )
                 }
-            } else {
-                notificationManager.showSimpleNotification(
-                    title = title,
-                    message = body
-                )
             }
         }
     }
