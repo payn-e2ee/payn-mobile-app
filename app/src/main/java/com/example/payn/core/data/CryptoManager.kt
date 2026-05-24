@@ -2,6 +2,7 @@ package com.example.payn.core.data
 
 import android.security.keystore.KeyGenParameterSpec
 import android.security.keystore.KeyProperties
+import android.util.Log
 import kotlinx.coroutines.flow.first
 import org.bouncycastle.crypto.AsymmetricCipherKeyPair
 import org.bouncycastle.crypto.agreement.X25519Agreement
@@ -18,6 +19,8 @@ import javax.crypto.Cipher
 import javax.crypto.KeyGenerator
 import javax.crypto.SecretKey
 import javax.crypto.spec.IvParameterSpec
+import kotlin.time.DurationUnit
+import kotlin.time.measureTimedValue
 
 
 class CryptoManager(private val keyValueStorage: KeyValueStorage) {
@@ -106,9 +109,13 @@ class CryptoManager(private val keyValueStorage: KeyValueStorage) {
     }
 
     fun generateX25519KeyPair(): AsymmetricCipherKeyPair {
-        val gen = X25519KeyPairGenerator()
-        gen.init(X25519KeyGenerationParameters(SecureRandom()))
-        return gen.generateKeyPair()
+        val (keyPair, timeTaken) = measureTimedValue {
+            val gen = X25519KeyPairGenerator()
+            gen.init(X25519KeyGenerationParameters(SecureRandom()))
+            gen.generateKeyPair()
+        }
+        Log.i("Performance", "It took ${timeTaken.toDouble(DurationUnit.MILLISECONDS)} ms to generate X25519 Key Pair")
+        return keyPair
     }
 
     /**
@@ -140,49 +147,68 @@ class CryptoManager(private val keyValueStorage: KeyValueStorage) {
         privateKey: X25519PrivateKeyParameters,
         publicKey: X25519PublicKeyParameters
     ): ByteArray {
-        val agreement = X25519Agreement()
-        agreement.init(privateKey)
-
-        val sharedSecret = ByteArray(agreement.agreementSize)
-        agreement.calculateAgreement(publicKey, sharedSecret, 0)
-
+        val (sharedSecret, timeTaken) = measureTimedValue {
+            val agreement = X25519Agreement()
+            agreement.init(privateKey)
+            val sharedSecret = ByteArray(agreement.agreementSize)
+            agreement.calculateAgreement(publicKey, sharedSecret, 0)
+            sharedSecret
+        }
+        Log.i(
+            "Performance",
+            "It took ${timeTaken.toDouble(DurationUnit.MILLISECONDS)} ms to generate Shared Secret (root key)"
+        )
         return sharedSecret
     }
 
     fun encryptWithKey(data: ByteArray, key: ByteArray): ByteArray {
-        // Convert the raw ByteArray into a SecretKeySpec
-        val secretKey = javax.crypto.spec.SecretKeySpec(key, "AES")
+        val (ciphertext, timeTaken) = measureTimedValue {
+            // Convert the raw ByteArray into a SecretKeySpec
+            val secretKey = javax.crypto.spec.SecretKeySpec(key, "AES")
 
-        val iv = ByteArray(IV_SIZE)
-        SecureRandom().nextBytes(iv)
+            val iv = ByteArray(IV_SIZE)
+            SecureRandom().nextBytes(iv)
 
-        val cipher = Cipher.getInstance(TRANSFORMATION)
-        cipher.init(
-            Cipher.ENCRYPT_MODE,
-            secretKey,
-            javax.crypto.spec.GCMParameterSpec(TAG_SIZE, iv)
+            val cipher = Cipher.getInstance(TRANSFORMATION)
+            cipher.init(
+                Cipher.ENCRYPT_MODE,
+                secretKey,
+                javax.crypto.spec.GCMParameterSpec(TAG_SIZE, iv)
+            )
+
+            val encrypted = cipher.doFinal(data)
+
+            // Return IV + ciphertext (IV_SIZE is 12 for GCM)
+            iv + encrypted
+        }
+        Log.i(
+            "Performance",
+            "It took ${timeTaken.toDouble(DurationUnit.MILLISECONDS)} ms to encrypt ${data.size} bytes with AES-GCM"
         )
-
-        val encrypted = cipher.doFinal(data)
-
-        // Return IV + ciphertext (IV_SIZE is 12 for GCM)
-        return iv + encrypted
+        return ciphertext
     }
 
     fun decryptWithKey(data: ByteArray, key: ByteArray): ByteArray {
-        val secretKey = javax.crypto.spec.SecretKeySpec(key, "AES")
+        val (plaintext, timeTaken) = measureTimedValue {
+            val secretKey = javax.crypto.spec.SecretKeySpec(key, "AES")
 
-        val iv = data.copyOfRange(0, IV_SIZE)
-        val encrypted = data.copyOfRange(IV_SIZE, data.size)
+            val iv = data.copyOfRange(0, IV_SIZE)
+            val encrypted = data.copyOfRange(IV_SIZE, data.size)
 
-        val cipher = Cipher.getInstance(TRANSFORMATION)
-        cipher.init(
-            Cipher.DECRYPT_MODE,
-            secretKey,
-            javax.crypto.spec.GCMParameterSpec(TAG_SIZE, iv)
+            val cipher = Cipher.getInstance(TRANSFORMATION)
+            cipher.init(
+                Cipher.DECRYPT_MODE,
+                secretKey,
+                javax.crypto.spec.GCMParameterSpec(TAG_SIZE, iv)
+            )
+
+            cipher.doFinal(encrypted)
+        }
+        Log.i(
+            "Performance",
+            "It took ${timeTaken.toDouble(DurationUnit.MILLISECONDS)} ms to decrypt ${data.size} bytes with AES-GCM"
         )
-
-        return cipher.doFinal(encrypted)
+        return plaintext
     }
 
     companion object {

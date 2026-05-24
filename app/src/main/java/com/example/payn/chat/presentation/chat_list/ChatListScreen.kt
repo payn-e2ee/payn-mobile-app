@@ -114,6 +114,7 @@ fun ChatListScreen(
                         if (messageDelivery != null) {
                             content = when (messageDelivery.type) {
                                 MessageType.TEXT -> viewModel.decryptMessage(
+                                    messageId = messageDelivery.messageId,
                                     ciphertext = messageDelivery.ciphertext,
                                     ephemeralPublicKey = messageDelivery.ephemeralPublicKey,
                                     messageCounter = messageDelivery.messageCounter,

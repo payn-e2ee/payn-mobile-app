@@ -89,8 +89,7 @@ fun MessagesBox(
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(12.dp),
         reverseLayout = true,
-
-        ) {
+    ) {
         items(messages, key = { it.id }) { message ->
             val isMe = message.senderUserId == currentUser.id
             var isLoading by remember { mutableStateOf(true) }
@@ -100,6 +99,7 @@ fun MessagesBox(
                 content = when (message.messageType) {
                     MessageType.TEXT ->
                         viewModel.decryptMessage(
+                            messageId = message.id,
                             ciphertext = Base64.decode(message.ciphertext, Base64.DEFAULT),
                             ephemeralPublicKey = message.ephemeralPublicKey,
                             messageCounter = message.messageCounter,
@@ -108,6 +108,7 @@ fun MessagesBox(
                         )
 
                     MessageType.IMAGE, MessageType.VOICE, MessageType.VIDEO -> viewModel.decryptMessage(
+                        messageId = message.id,
                         ciphertext = viewModel.getAttachmentFileBytes(message.attachment!!.id),
                         ephemeralPublicKey = message.ephemeralPublicKey,
                         messageCounter = message.messageCounter,

@@ -1,5 +1,6 @@
 package com.example.payn.chat.presentation.chat_list
 
+import android.util.Base64
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.payn.chat.data.mappers.toChat
@@ -13,7 +14,6 @@ import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import android.util.Base64
 
 class ChatListViewModel(
     private val chatRepository: ChatRepository,
@@ -51,38 +51,50 @@ class ChatListViewModel(
         _state.update { it.copy(searchQuery = value) }
     }
 
+    private val messagesCache = mutableMapOf<String, String>()
     suspend fun decryptMessage(
+        messageId: String,
         ciphertext: String,
         ephemeralPublicKey: String,
         messageCounter: Int,
         senderDeviceId: String,
         receiptDeviceId: String
     ): String {
-        val currentDeviceId = currentUser?.devices?.firstOrNull()?.id ?: return ""
-        val isFromCurrentDevice = senderDeviceId == currentDeviceId
-
-        if (!isFromCurrentDevice && doubleRatchetEngine.isFirstTimeSeeingEphemeralPublicKey(
-                ephemeralPublicKey
-            )
-        ) {
-            return String(
-                doubleRatchetEngine.decryptMessage(
-                    ciphertext = Base64.decode(ciphertext, Base64.DEFAULT),
-                    remoteEphemeralPublicKey = ephemeralPublicKey,
-                    messageCounter = messageCounter,
-                    remoteDeviceId = senderDeviceId,
-                )
-            )
+        var plaintext = messagesCache[messageId]
+        if (plaintext != null) {
+            return plaintext
         }
 
-        return String(
-            doubleRatchetEngine.decryptStateless(
-                ciphertext = Base64.decode(ciphertext, Base64.DEFAULT),
-                ephemeralPublicKey = ephemeralPublicKey,
-                messageCounter = messageCounter,
-                isFromCurrentDevice = isFromCurrentDevice,
-                remoteDeviceId = if (isFromCurrentDevice) receiptDeviceId else senderDeviceId,
-            )
-        )
+        val currentDeviceId = currentUser?.devices?.firstOrNull()?.id ?: return ""
+        val isFromCurrentDevice = senderDeviceId == currentDeviceId
+        plaintext =
+            if (!isFromCurrentDevice && doubleRatchetEngine.isFirstTimeSeeingEphemeralPublicKey(
+                    Base64.decode(ephemeralPublicKey, Base64.DEFAULT)
+                )
+            ) {
+                String(
+                    doubleRatchetEngine.decryptMessage(
+                        ciphertext = Base64.decode(ciphertext, Base64.DEFAULT),
+                        remoteEphemeralPublicKey = Base64.decode(
+                            ephemeralPublicKey,
+                            Base64.DEFAULT
+                        ),
+                        messageCounter = messageCounter,
+                        remoteDeviceId = senderDeviceId,
+                    )
+                )
+            } else {
+                String(
+                    doubleRatchetEngine.decryptStateless(
+                        ciphertext = Base64.decode(ciphertext, Base64.DEFAULT),
+                        ephemeralPublicKey = Base64.decode(ephemeralPublicKey, Base64.DEFAULT),
+                        messageCounter = messageCounter,
+                        isFromCurrentDevice = isFromCurrentDevice,
+                        remoteDeviceId = if (isFromCurrentDevice) receiptDeviceId else senderDeviceId,
+                    )
+                )
+            }
+        messagesCache[messageId] = plaintext
+        return plaintext
     }
 }

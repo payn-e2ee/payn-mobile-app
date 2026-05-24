@@ -76,7 +76,7 @@ class ChatService(
             val encryptedMessage = doubleRatchetEngine.encryptMessage(
                 content = content,
                 remoteDeviceId = device.id,
-                remoteIdentityKey = device.identityKey,
+                remoteIdentityKey = Base64.decode(device.identityKey, Base64.DEFAULT),
             )
 
             val ciphertext = if (messageType == MessageTypeDTO.TEXT) Base64.encodeToString(
@@ -106,7 +106,10 @@ class ChatService(
                     recipientUserId = user.id,
                     recipientDeviceId = device.id,
                     senderIdentityKey = currentUser.devices.first().identityKey,
-                    senderEphemeralPublicKey = encryptedMessage.ephemeralPublicKey,
+                    senderEphemeralPublicKey = Base64.encodeToString(
+                        encryptedMessage.ephemeralPublicKey,
+                        Base64.DEFAULT
+                    ),
                     messageCounter = encryptedMessage.messageCounter,
                     messageType = messageType,
                     attachment = attachment,

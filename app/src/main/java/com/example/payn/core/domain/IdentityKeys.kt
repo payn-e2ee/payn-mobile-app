@@ -11,10 +11,10 @@ data class IdentityKeysEntity(
     val id: String = UUID.randomUUID().toString(),
 
     // Public key (safe to store)
-    val publicKey: String,
+    val publicKey: ByteArray,
 
     // Private key (must be encrypted before storing)
-    val encryptedPrivateKey: String,
+    val encryptedPrivateKey: ByteArray,
 
     val createdAt: Long = System.currentTimeMillis()
 )

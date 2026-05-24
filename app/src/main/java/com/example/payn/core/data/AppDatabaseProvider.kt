@@ -3,10 +3,15 @@ package com.example.payn.core.data
 import android.content.Context
 
 class DatabaseProvider(val secureDatabaseFactory: SecureDatabaseFactory) {
-    var appDatabase: AppDatabase? = null
+
+    private var _appDatabase: AppDatabase? = null
+
+    val appDatabase: AppDatabase
+        get() = _appDatabase
+            ?: throw IllegalStateException("Database not initialized")
 
     suspend fun createOrSwitchDatabase(context: Context, name: String) {
-        appDatabase?.close()
-        appDatabase = secureDatabaseFactory.create(context, name)
+        _appDatabase?.close()
+        _appDatabase = secureDatabaseFactory.create(context, name)
     }
 }

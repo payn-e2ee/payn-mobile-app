@@ -26,7 +26,7 @@ class PaynFirebaseMessagingService : FirebaseMessagingService() {
     override fun onNewToken(token: String) {
         super.onNewToken(token)
         Log.d("PaynFCM", "New token generated: $token")
-        
+
         // we only update the token on the server if the user is logged in
         serviceScope.launch {
             if (authSessionManager.isLoggedIn()) {
@@ -52,33 +52,43 @@ class PaynFirebaseMessagingService : FirebaseMessagingService() {
                     val messageCounter = message.data["message_counter"]?.toIntOrNull() ?: 0
                     val senderUserId = message.data["sender_user_id"] ?: ""
                     val senderDeviceId = message.data["sender_device_id"] ?: ""
+                    val isFromCurrentDevice = false
 
                     if (ciphertext != null && ephemeralPublicKey != null) {
                         try {
-                            val decryptedBody = if (doubleRatchetEngine.isFirstTimeSeeingEphemeralPublicKey(ephemeralPublicKey)) {
-                                String(
+                            val plaintext =
+                                if (doubleRatchetEngine.isFirstTimeSeeingEphemeralPublicKey(
+                                        Base64.decode(
+                                            ephemeralPublicKey,
+                                            Base64.DEFAULT
+                                        )
+                                    )
+                                ) {
                                     doubleRatchetEngine.decryptMessage(
                                         ciphertext = Base64.decode(ciphertext, Base64.DEFAULT),
-                                        remoteEphemeralPublicKey = ephemeralPublicKey,
+                                        remoteEphemeralPublicKey = Base64.decode(
+                                            ephemeralPublicKey,
+                                            Base64.DEFAULT
+                                        ),
                                         messageCounter = messageCounter,
                                         remoteDeviceId = senderDeviceId,
                                     )
-                                )
-                            } else {
-                                String(
+                                } else {
                                     doubleRatchetEngine.decryptStateless(
                                         ciphertext = Base64.decode(ciphertext, Base64.DEFAULT),
-                                        ephemeralPublicKey = ephemeralPublicKey,
+                                        ephemeralPublicKey = Base64.decode(
+                                            ephemeralPublicKey,
+                                            Base64.DEFAULT
+                                        ),
                                         messageCounter = messageCounter,
-                                        remoteDeviceId = senderDeviceId,
                                         isFromCurrentDevice = false,
+                                        remoteDeviceId = senderDeviceId,
                                     )
-                                )
-                            }
+                                }
 
                             notificationManager.showSimpleNotification(
                                 title = title,
-                                message = decryptedBody
+                                message = String(plaintext)
                             )
                         } catch (e: Exception) {
                             Log.e("PaynFCM", "Failed to decrypt message", e)
