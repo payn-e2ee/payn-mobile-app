@@ -11,19 +11,19 @@ data class RatchetEpochEntity(
 
     val deviceId: String,
 
-    val sendChainKey: String,
-    val receiveChainKey: String,
+    val sendChainKey: ByteArray,
+    val receiveChainKey: ByteArray?,
 
-    val sendRootKey: String,
-    val receiveRootKey: String,
+    val sendRootKey: ByteArray,
+    val receiveRootKey: ByteArray?,
 
-    val remoteEphemeralPublicKey: String,
+    val remoteEphemeralPublicKey: ByteArray,
 
-    val localSendEphemeralPublicKey: String,
-    val localSendEncryptedEphemeralPrivateKey: String,
+    val localSendEphemeralPublicKey: ByteArray,
+    val localSendEncryptedEphemeralPrivateKey: ByteArray,
 
-    val localReceiveEphemeralPublicKey: String,
-    val localReceiveEncryptedEphemeralPrivateKey: String,
+    val localReceiveEphemeralPublicKey: ByteArray?,
+    val localReceiveEncryptedEphemeralPrivateKey: ByteArray?,
 
     val createdAt: Long = System.currentTimeMillis()
 )

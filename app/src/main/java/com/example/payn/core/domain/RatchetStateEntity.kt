@@ -11,18 +11,18 @@ data class RatchetStateEntity(
 
     val deviceId: String,
 
-    val sendChainKey: String,
-    val receiveChainKey: String,
+    val sendChainKey: ByteArray,
+    val receiveChainKey: ByteArray?,
     val sendMessageCounter: Int,
     val receiveMessageCounter: Int,
 
-    val remoteEphemeralPublicKey: String,
+    val remoteEphemeralPublicKey: ByteArray,
 
-    val localSendEphemeralPublicKey: String,
-    val localSendEncryptedEphemeralPrivateKey: String,
+    val localSendEphemeralPublicKey: ByteArray,
+    val localSendEncryptedEphemeralPrivateKey: ByteArray,
 
-    val localReceiveEphemeralPublicKey: String,
-    val localReceiveEncryptedEphemeralPrivateKey: String,
+    val localReceiveEphemeralPublicKey: ByteArray?,
+    val localReceiveEncryptedEphemeralPrivateKey: ByteArray?,
 
     val createdAt: Long = System.currentTimeMillis()
 )

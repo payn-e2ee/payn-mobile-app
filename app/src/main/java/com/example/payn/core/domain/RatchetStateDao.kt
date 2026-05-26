@@ -16,33 +16,33 @@ interface RatchetStateDao {
     suspend fun getRecentRatchetStateByDeviceId(deviceId: String): RatchetStateEntity?
 
     @Query("SELECT * FROM ratchet_states WHERE remoteEphemeralPublicKey = :remoteEphemeralPublicKey limit 1")
-    suspend fun getByRemoteEphemeralPublicKey(remoteEphemeralPublicKey: String): RatchetStateEntity?
+    suspend fun getByRemoteEphemeralPublicKey(remoteEphemeralPublicKey: ByteArray): RatchetStateEntity?
 
     @Query("UPDATE ratchet_states SET sendChainKey=:sendChainKey, receiveChainKey=:receiveChainKey, sendMessageCounter=:sendMessageCounter, receiveMessageCounter=:receiveMessageCounter, remoteEphemeralPublicKey=:remoteEphemeralPublicKey, localSendEphemeralPublicKey=:localSendEphemeralPublicKey, localSendEncryptedEphemeralPrivateKey=:localSendEncryptedEphemeralPrivateKey, localReceiveEphemeralPublicKey=:localReceiveEphemeralPublicKey, localReceiveEncryptedEphemeralPrivateKey=:localReceiveEncryptedEphemeralPrivateKey WHERE deviceId = :deviceId")
     suspend fun updateRatchetStateByDeviceId(
         deviceId: String,
-        sendChainKey: String,
-        receiveChainKey: String,
+        sendChainKey: ByteArray,
+        receiveChainKey: ByteArray,
         sendMessageCounter: Int,
         receiveMessageCounter: Int,
-        remoteEphemeralPublicKey: String,
-        localSendEphemeralPublicKey: String,
-        localSendEncryptedEphemeralPrivateKey: String,
-        localReceiveEphemeralPublicKey: String,
-        localReceiveEncryptedEphemeralPrivateKey: String,
+        remoteEphemeralPublicKey: ByteArray,
+        localSendEphemeralPublicKey: ByteArray,
+        localSendEncryptedEphemeralPrivateKey: ByteArray,
+        localReceiveEphemeralPublicKey: ByteArray,
+        localReceiveEncryptedEphemeralPrivateKey: ByteArray,
     )
 
     @Query("UPDATE ratchet_states SET sendChainKey=:sendChainKey, sendMessageCounter=:sendMessageCounter WHERE deviceId = :deviceId")
     suspend fun updateSendChainStateByDeviceId(
         deviceId: String,
-        sendChainKey: String,
+        sendChainKey: ByteArray,
         sendMessageCounter: Int,
     )
 
     @Query("UPDATE ratchet_states SET receiveChainKey=:receiveChainKey, receiveMessageCounter=:receiveMessageCounter WHERE deviceId = :deviceId")
     suspend fun updateReceiveChainStateByDeviceId(
         deviceId: String,
-        receiveChainKey: String,
+        receiveChainKey: ByteArray,
         receiveMessageCounter: Int,
     )
 

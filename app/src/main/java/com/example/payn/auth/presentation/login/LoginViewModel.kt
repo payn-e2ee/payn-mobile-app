@@ -1,6 +1,7 @@
 package com.example.payn.auth.presentation.login
 
 import android.content.Context
+import android.util.Base64
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.payn.auth.data.repository.AuthRepository
@@ -85,39 +86,31 @@ class LoginViewModel(
                 databaseProvider.createOrSwitchDatabase(context, user.id)
 
                 val identityKeyEntity =
-                    databaseProvider.appDatabase?.identityKeysDao()?.getIdentityKey()
-                var identityKey = identityKeyEntity?.publicKey ?: ""
+                    databaseProvider.appDatabase.identityKeysDao().getIdentityKey()
+                var identityKey = identityKeyEntity?.publicKey
                 if (identityKeyEntity == null) {
                     val identityKeyPair = cryptoManager.generateX25519KeyPair()
                     val privateKey = identityKeyPair.private as X25519PrivateKeyParameters
                     val publicKey = identityKeyPair.public as X25519PublicKeyParameters
                     val privateKeyEncrypted =
                         cryptoManager.encrypt(privateKey.encoded)
-                    val privateKeyEncryptedBase64 = android.util.Base64.encodeToString(
-                        privateKeyEncrypted,
-                        android.util.Base64.DEFAULT
-                    )
-                    val publicKeyBase64 = android.util.Base64.encodeToString(
-                        publicKey.encoded,
-                        android.util.Base64.DEFAULT
-                    )
 
-                    identityKey = publicKeyBase64
+                    identityKey = publicKey.encoded
 
-                    databaseProvider.appDatabase?.identityKeysDao()?.insert(
+                    databaseProvider.appDatabase.identityKeysDao().insert(
                         IdentityKeysEntity(
-                            encryptedPrivateKey = privateKeyEncryptedBase64,
-                            publicKey = publicKeyBase64,
+                            encryptedPrivateKey = privateKeyEncrypted,
+                            publicKey = publicKey.encoded,
                         )
                     )
                 }
 
-                authRepository.registerDevice(deviceRegistrationToken, identityKey, fcmToken)
-                    .onSuccess {
-                        keyValueStorage.putString("access_token", it.data.accessToken)
-                        authSessionManager.initializeSession()
-                        onSuccess()
-                    }
+                val identityKeyBase64 = Base64.encodeToString(identityKey, Base64.DEFAULT)
+                authRepository.registerDevice(deviceRegistrationToken, identityKeyBase64).onSuccess {
+                    keyValueStorage.putString("access_token", it.data.accessToken)
+                    authSessionManager.initializeSession()
+                    onSuccess()
+                }
             }.onError { err ->
                 if (err is DataError.Remote.BAD_REQUEST) {
                     onError(err.message)

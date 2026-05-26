@@ -6,6 +6,7 @@ import android.net.Uri
 import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
+import android.util.Base64
 import android.widget.Toast
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
@@ -252,35 +253,50 @@ class ChatDetailViewModel(
         _state.update { it.copy(message = content) }
     }
 
+    private val messagesCache = mutableMapOf<String, ByteArray>()
     suspend fun decryptMessage(
+        messageId: String,
         ciphertext: ByteArray,
         ephemeralPublicKey: String,
         messageCounter: Int,
         senderDeviceId: String,
         receiptDeviceId: String
     ): ByteArray {
+        var plaintext = messagesCache[messageId]
+        if (plaintext != null) {
+            return plaintext
+        }
+
         val currentDeviceId = currentUser?.devices?.firstOrNull()?.id ?: return "".toByteArray()
         val isFromCurrentDevice = senderDeviceId == currentDeviceId
 
-        if (!isFromCurrentDevice && doubleRatchetEngine.isFirstTimeSeeingEphemeralPublicKey(
-                ephemeralPublicKey
-            )
-        ) {
-            return doubleRatchetEngine.decryptMessage(
-                ciphertext = ciphertext,
-                remoteEphemeralPublicKey = ephemeralPublicKey,
-                messageCounter = messageCounter,
-                remoteDeviceId = senderDeviceId,
-            )
-        }
+        plaintext =
+            if (!isFromCurrentDevice && doubleRatchetEngine.isFirstTimeSeeingEphemeralPublicKey(
+                    Base64.decode(ephemeralPublicKey, Base64.DEFAULT)
+                )
+            ) {
+                doubleRatchetEngine.decryptMessage(
+                    ciphertext = ciphertext,
+                    remoteEphemeralPublicKey = Base64.decode(
+                        ephemeralPublicKey,
+                        Base64.DEFAULT
+                    ),
+                    messageCounter = messageCounter,
+                    remoteDeviceId = senderDeviceId,
+                )
+            } else {
+                doubleRatchetEngine.decryptStateless(
+                    ciphertext = ciphertext,
+                    ephemeralPublicKey = Base64.decode(ephemeralPublicKey, Base64.DEFAULT),
+                    messageCounter = messageCounter,
+                    isFromCurrentDevice = isFromCurrentDevice,
+                    remoteDeviceId = if (isFromCurrentDevice) receiptDeviceId else senderDeviceId,
+                )
+            }
 
-        return doubleRatchetEngine.decryptStateless(
-            ciphertext = ciphertext,
-            ephemeralPublicKey = ephemeralPublicKey,
-            messageCounter = messageCounter,
-            isFromCurrentDevice = isFromCurrentDevice,
-            remoteDeviceId = if (isFromCurrentDevice) receiptDeviceId else senderDeviceId,
-        )
+        messagesCache[messageId] = plaintext
+
+        return plaintext
     }
 
     fun setSelectedImageUri(uri: Uri?) {
@@ -347,6 +363,7 @@ class ChatDetailViewModel(
         attachmentRepository.getAttachmentById(message.attachment!!.id)
             .onSuccess { encryptedBytes ->
                 val originalBytes = decryptMessage(
+                    messageId= message.id,
                     ciphertext = encryptedBytes,
                     ephemeralPublicKey = message.ephemeralPublicKey,
                     messageCounter = message.messageCounter,

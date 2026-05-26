@@ -12,13 +12,10 @@ interface RatchetEpochDao {
     suspend fun insert(entity: RatchetEpochEntity)
 
     @Query("SELECT * FROM ratchet_epochs WHERE remoteEphemeralPublicKey = :remoteEphemeralPublicKey limit 1")
-    suspend fun getRatchetEpochByRemoteEphemeralPublicKey(remoteEphemeralPublicKey: String): RatchetEpochEntity?
+    suspend fun getRatchetEpochByRemoteEphemeralPublicKey(remoteEphemeralPublicKey: ByteArray): RatchetEpochEntity?
 
-    @Query("SELECT * FROM ratchet_epochs WHERE localSendEphemeralPublicKey = :localSendEphemeralPublicKey limit 1")
-    suspend fun getRatchetEpochByLocalSendEphemeralPublicKey(localSendEphemeralPublicKey: String): RatchetEpochEntity?
-
-    @Query("SELECT * FROM ratchet_epochs WHERE deviceId = :deviceId limit 1")
-    suspend fun getRatchetEpochByDeviceId(deviceId: String): RatchetEpochEntity?
+    @Query("SELECT * FROM ratchet_epochs WHERE localSendEphemeralPublicKey = :localSendEphemeralPublicKey AND deviceId = :deviceId limit 1")
+    suspend fun getRatchetEpochByLocalSendEphemeralPublicKeyAndDeviceId(localSendEphemeralPublicKey: ByteArray, deviceId: String): RatchetEpochEntity?
 
     @Query("SELECT * FROM ratchet_epochs")
     suspend fun getRatchetEpochs(): List<RatchetEpochEntity>
