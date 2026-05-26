@@ -34,6 +34,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
+import coil3.compose.AsyncImage
 import com.composables.icons.lucide.ArrowLeft
 import com.composables.icons.lucide.Lucide
 import com.composables.icons.lucide.MessageCircle
@@ -42,6 +43,7 @@ import com.composables.icons.lucide.Phone
 import com.composables.icons.lucide.Trash2
 import com.example.payn.R
 import com.example.payn.contact.presentation.components.EditContactModal
+import com.example.payn.core.config.AppConfig
 import com.example.payn.core.presentation.components.GlassCard
 import com.example.payn.ui.theme.Blue400
 import com.example.payn.ui.theme.Blue500
@@ -116,10 +118,10 @@ fun ContactDetailScreen(
                         verticalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
                         Box(contentAlignment = Alignment.BottomEnd) {
-                            // FIXME: Use user profile picture when it available
-                            Image(
-                                painter = painterResource(R.drawable.default_profile_picture),
-                                contentDescription = "profile picture",
+                            AsyncImage(
+                                model = contact.contactUser?.profileImageId?.let { "${AppConfig.BASE_API_URL}/attachments/$it" }
+                                    ?: R.drawable.default_profile_picture,
+                                contentDescription = "profile image",
                                 modifier = Modifier
                                     .size(128.dp)
                                     .clip(CircleShape)

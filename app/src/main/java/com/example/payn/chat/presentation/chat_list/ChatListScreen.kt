@@ -36,11 +36,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
+import coil3.compose.AsyncImage
 import com.example.payn.R
 import com.example.payn.app.Route
 import com.example.payn.chat.domain.MessageType
 import com.example.payn.chat.presentation.components.MessageStatus
 import com.example.payn.chat.presentation.components.SearchInput
+import com.example.payn.core.config.AppConfig
 import com.example.payn.core.presentation.components.GlassCard
 import com.example.payn.ui.theme.Blue400
 import com.example.payn.ui.theme.Blue500
@@ -147,10 +149,10 @@ fun ChatListScreen(
 
                             // Avatar
                             Box {
-                                // FIXME: Use user profile picture when it available
-                                Image(
-                                    painter = painterResource(R.drawable.default_profile_picture),
-                                    contentDescription = chatName,
+                                AsyncImage(
+                                    model = otherMember.user?.profileImageId?.let { "${AppConfig.BASE_API_URL}/attachments/$it" }
+                                        ?: R.drawable.default_profile_picture,
+                                    contentDescription = "profile image",
                                     modifier = Modifier
                                         .size(56.dp)
                                         .clip(CircleShape),
