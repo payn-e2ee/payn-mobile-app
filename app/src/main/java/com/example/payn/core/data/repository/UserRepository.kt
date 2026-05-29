@@ -1,5 +1,6 @@
 package com.example.payn.core.data.repository
 
+import com.example.payn.core.data.dto.SearchUserDTO
 import com.example.payn.core.data.dto.UpdateUserFormDTO
 import com.example.payn.core.data.dto.UserDTO
 import com.example.payn.core.data.network.UserDataSource
@@ -16,6 +17,10 @@ class UserRepository(
 
     suspend fun getUserById(userId: String): Result<ApiResponse<UserDTO>, DataError.Remote> {
         return userDataSource.getUserById(userId)
+    }
+
+    suspend fun searchUsers(query: String, limit: Int = 20): Result<ApiResponse<List<SearchUserDTO>>, DataError.Remote> {
+        return userDataSource.searchUsers(query, limit)
     }
 
     suspend fun updateFcmToken(token: String): Result<ApiResponse<Unit>, DataError.Remote> {

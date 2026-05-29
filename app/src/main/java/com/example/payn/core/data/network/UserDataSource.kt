@@ -1,6 +1,7 @@
 package com.example.payn.core.data.network
 
 import com.example.payn.core.config.AppConfig
+import com.example.payn.core.data.dto.SearchUserDTO
 import com.example.payn.core.data.dto.UpdateUserFormDTO
 import com.example.payn.core.data.dto.UserDTO
 import com.example.payn.core.data.safeCall
@@ -44,6 +45,19 @@ class UserDataSource(private val httpClient: HttpClient) {
             httpClient.get(
                 urlString = "$BASE_URL/$userId"
             )
+        }
+    }
+
+    suspend fun searchUsers(query: String, limit: Int = 20): Result<ApiResponse<List<SearchUserDTO>>, DataError.Remote> {
+        return safeCall {
+            httpClient.get(
+                urlString = "$BASE_URL/"
+            ) {
+                url {
+                    parameters.append("query", query)
+                    parameters.append("limit", limit.toString())
+                }
+            }
         }
     }
 

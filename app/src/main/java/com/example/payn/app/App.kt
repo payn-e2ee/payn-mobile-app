@@ -28,6 +28,8 @@ import com.example.payn.chat.presentation.chat_list.ChatListScreen
 import com.example.payn.chat.presentation.chat_list.ChatListViewModel
 import com.example.payn.chat.presentation.chat_detail.ChatDetailScreen
 import com.example.payn.chat.presentation.chat_detail.ChatDetailViewModel
+import com.example.payn.chat.presentation.search_users.SearchUsersScreen
+import com.example.payn.chat.presentation.search_users.SearchUsersViewModel
 import com.example.payn.contact.presentation.contact_list.ContactsScreen
 import com.example.payn.contact.presentation.contact_list.ListContactsViewModel
 import com.example.payn.settings.presentation.SettingsScreen
@@ -79,6 +81,14 @@ fun AppNavHost(
             ChatListScreen(
                 viewModel = viewModel,
                 navController = navController
+            )
+        }
+
+        composable<Route.SearchUsers> {
+            val viewModel = koinViewModel<SearchUsersViewModel>()
+            SearchUsersScreen(
+                viewModel = viewModel,
+                navController = navController,
             )
         }
 
