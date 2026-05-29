@@ -11,6 +11,7 @@ import com.example.payn.chat.data.security.DoubleRatchetEngine
 import com.example.payn.chat.data.service.ChatService
 import com.example.payn.chat.presentation.chat_list.ChatListViewModel
 import com.example.payn.chat.presentation.chat_detail.ChatDetailViewModel
+import com.example.payn.chat.presentation.search_users.SearchUsersViewModel
 import com.example.payn.contact.data.network.ContactDataSource
 import com.example.payn.contact.data.repository.ContactRepository
 import com.example.payn.contact.presentation.contact_detail.ContactDetailViewModel
@@ -74,6 +75,7 @@ val appModule = module {
     viewModelOf(::LoginViewModel)
     viewModelOf(::RegisterViewModel)
     viewModelOf(::ChatListViewModel)
+    viewModelOf(::SearchUsersViewModel)
     viewModelOf(::ChatDetailViewModel)
     viewModelOf(::ListContactsViewModel)
     viewModelOf(::ContactDetailViewModel)

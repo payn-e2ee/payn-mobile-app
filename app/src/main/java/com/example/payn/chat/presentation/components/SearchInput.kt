@@ -7,12 +7,15 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Icon
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.payn.core.presentation.components.GlassCard
@@ -31,7 +34,9 @@ fun SearchInputPreview() {
 @Composable
 fun SearchInput(
     value: String,
-    onValueChange: (value: String) -> Unit
+    onValueChange: (value: String) -> Unit,
+    placeholder: String = "Search messages...",
+    onSearch: (() -> Unit)? = null,
 ) {
     GlassCard(modifier = Modifier.fillMaxWidth()) {
         Box(modifier = Modifier.padding(12.dp)) {
@@ -41,13 +46,19 @@ fun SearchInput(
                 onValueChange = onValueChange,
                 placeholder = {
                     Text(
-                        "Search messages...",
+                        placeholder,
                         color = Gray600
                     )
                 },
                 leadingIcon = { Icon(Icons.Default.Search, null) },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true,
+                keyboardOptions = KeyboardOptions(
+                    imeAction = if (onSearch != null) ImeAction.Search else ImeAction.Default,
+                ),
+                keyboardActions = KeyboardActions(
+                    onSearch = { onSearch?.invoke() },
+                ),
                 colors = TextFieldDefaults.colors(
                     focusedIndicatorColor = Color.Transparent,
                     unfocusedIndicatorColor = Color.Transparent,

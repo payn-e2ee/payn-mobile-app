@@ -97,7 +97,14 @@ fun ChatListScreen(
 
             SearchInput(
                 value = state.searchQuery,
-                onValueChange = { viewModel.setSearchQuery(it) }
+                onValueChange = { viewModel.setSearchQuery(it) },
+                placeholder = "Search users...",
+                onSearch = {
+                    val query = state.searchQuery.trim()
+                    if (query.isNotEmpty()) {
+                        navController.navigate(Route.SearchUsers(query))
+                    }
+                },
             )
 
             LazyColumn(

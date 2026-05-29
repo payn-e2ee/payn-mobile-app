@@ -13,6 +13,9 @@ sealed interface Route {
     data object Chats : Route
 
     @Serializable
+    data class SearchUsers(val query: String) : Route
+
+    @Serializable
     data class Chat(val id: String?, val userId: String?) : Route
 
     @Serializable
@@ -45,6 +48,7 @@ val RouteSaver = Saver<Route, String>(
         when (route) {
             is Route.Welcome -> "welcome"
             is Route.Chats -> "chats"
+            is Route.SearchUsers -> "search-users?query=${route.query}"
             is Route.Contacts -> "contacts"
             is Route.Calls -> "calls"
             is Route.Settings -> "settings"
@@ -78,6 +82,7 @@ val RouteSaver = Saver<Route, String>(
                         Route.Contact(id)
                     }
                     "chat" -> Route.Chat(pathSegments.getOrNull(1), params["user_id"])
+                    "search-users" -> Route.SearchUsers(params["query"] ?: "")
                     else -> Route.Welcome
                 }
             }
