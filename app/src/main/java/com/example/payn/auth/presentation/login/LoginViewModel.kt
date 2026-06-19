@@ -104,9 +104,9 @@ class LoginViewModel(
                         )
                     )
                 }
-
+2
                 val identityKeyBase64 = Base64.encodeToString(identityKey, Base64.DEFAULT)
-                authRepository.registerDevice(deviceRegistrationToken, identityKeyBase64).onSuccess {
+                authRepository.registerDevice(deviceRegistrationToken, identityKeyBase64, fcmToken).onSuccess {
                     keyValueStorage.putString("access_token", it.data.accessToken)
                     authSessionManager.initializeSession()
                     onSuccess()
