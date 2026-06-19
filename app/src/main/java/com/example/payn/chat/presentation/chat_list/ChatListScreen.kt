@@ -230,22 +230,5 @@ fun ChatListScreen(
                 }
             }
         }
-
-        // Floating Action Button
-        Box(
-            modifier = Modifier
-                .align(Alignment.BottomEnd)
-                .padding(24.dp)
-                .size(64.dp)
-                .clip(CircleShape)
-                .background(Blue500),
-            contentAlignment = Alignment.Center
-        ) {
-            Text(
-                text = "+",
-                fontSize = 28.sp,
-                color = White
-            )
-        }
     }
 }
