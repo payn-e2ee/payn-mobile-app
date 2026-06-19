@@ -53,6 +53,7 @@ import com.example.payn.ui.theme.Purple400
 import com.example.payn.ui.theme.White
 import org.ocpsoft.prettytime.PrettyTime
 import java.time.Instant
+import java.time.ZoneId
 import java.util.Date
 
 
@@ -197,11 +198,7 @@ fun ChatListScreen(
                                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                                         Text(
                                             text =
-                                                PrettyTime().format(
-                                                    Date.from(
-                                                        Instant.parse(chat.createdAt)
-                                                    )
-                                                ),
+                                                PrettyTime().format(Date.from(Instant.parse(message?.createdAt))),
                                             fontSize = 12.sp,
                                             color = Gray600
                                         )
