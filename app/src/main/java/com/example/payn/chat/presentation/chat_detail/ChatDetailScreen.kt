@@ -108,7 +108,11 @@ fun ChatDetailScreen(
                         viewModel.sendFile(
                             fileUri = uri,
                             onCreateChat = {
-                                navController.navigate(Route.Chat(it, null))
+                                navController.navigate(Route.Chat(it, null)) {
+                                    popUpTo<Route.Chat> {
+                                        inclusive = true
+                                    }
+                                }
                             })
                     }
                 },
@@ -117,7 +121,11 @@ fun ChatDetailScreen(
                         viewModel.sendText(
                             content = state.message.toByteArray(),
                             onCreateChat = {
-                                navController.navigate(Route.Chat(it, null))
+                                navController.navigate(Route.Chat(it, null)) {
+                                    popUpTo<Route.Chat> {
+                                        inclusive = true
+                                    }
+                                }
                             },
 
                             )
@@ -131,7 +139,13 @@ fun ChatDetailScreen(
                     viewModel.viewModelScope.launch {
                         viewModel.sendVoice(
                             fileUri = audioRecorder.outputFile?.toUri() ?: return@launch,
-                            onCreateChat = { navController.navigate(Route.Chat(it, null)) }
+                            onCreateChat = {
+                                navController.navigate(Route.Chat(it, null)) {
+                                    popUpTo<Route.Chat> {
+                                        inclusive = true
+                                    }
+                                }
+                            }
                         )
                     }
                 }
@@ -191,7 +205,11 @@ fun ChatDetailScreen(
                             viewModel.viewModelScope.launch {
                                 viewModel.sendImage(
                                     onCreateChat = {
-                                        navController.navigate(Route.Chat(it, null))
+                                        navController.navigate(Route.Chat(it, null)) {
+                                            popUpTo<Route.Chat> {
+                                                inclusive = true
+                                            }
+                                        }
                                     }
                                 )
                                 viewModel.setShowSelectedImagePopup(false)
@@ -251,7 +269,11 @@ fun ChatDetailScreen(
                                 viewModel.viewModelScope.launch {
                                     viewModel.sendVideo(
                                         onCreateChat = {
-                                            navController.navigate(Route.Chat(it, null))
+                                            navController.navigate(Route.Chat(it, null)) {
+                                                popUpTo<Route.Chat> {
+                                                    inclusive = true
+                                                }
+                                            }
                                         }
                                     )
                                     viewModel.setShowSelectedVideoPopup(false)

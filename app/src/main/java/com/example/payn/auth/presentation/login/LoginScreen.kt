@@ -178,7 +178,11 @@ fun LoginScreen(
                             .clickable {
                                 viewModel.submit(
                                     context = context,
-                                    onSuccess = { navController.navigate(Route.Chats) },
+                                    onSuccess = {
+                                        navController.navigate(Route.Chats) {
+                                            popUpTo<Route.Login> { inclusive = true }
+                                        }
+                                    },
                                     onError = { message ->
                                         Toast.makeText(
                                             context, message, Toast.LENGTH_LONG
