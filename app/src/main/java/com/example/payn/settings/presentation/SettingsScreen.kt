@@ -75,6 +75,11 @@ fun SettingsScreen(
                 )
             }
 
+            UserProfileHeader(
+                user = viewModel.currentUser,
+                onEdit = { navController.navigate(Route.EditProfile) }
+            )
+
             // Notifications Button
             GlassCard(
                 modifier = Modifier.fillMaxWidth(),
@@ -113,10 +118,6 @@ fun SettingsScreen(
                     )
                 }
             }
-            UserProfileHeader(
-                user = viewModel.currentUser,
-                onEdit = { navController.navigate(Route.EditProfile) }
-            )
 
             // Logout Button
             GlassCard(

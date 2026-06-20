@@ -117,6 +117,8 @@ class LoginViewModel(
                     if (err.formErrors != null) {
                         setFieldErrors(err.formErrors)
                     }
+                } else if (err is DataError.Remote.UNAUTHORIZED) {
+                    onError(err.message)
                 } else {
                     onError("Something went wrong")
                 }

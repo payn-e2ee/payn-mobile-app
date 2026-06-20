@@ -114,7 +114,7 @@ class EditProfileViewModel(
                             setFieldErrors(err.formErrors)
                         }
                     }
-                    DataError.Remote.UNAUTHORIZED -> onError("Session expired. Please login again.")
+                    is DataError.Remote.UNAUTHORIZED -> onError("Session expired. Please login again.")
                     DataError.Remote.FORBIDDEN -> onError("You don't have permission to do this.")
                     else -> onError("Something went wrong")
                 }

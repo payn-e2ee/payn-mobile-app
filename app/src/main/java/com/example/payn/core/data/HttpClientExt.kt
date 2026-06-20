@@ -53,7 +53,14 @@ suspend inline fun <reified T> responseToResult(
             )
         }
 
-        401 -> Result.Error(DataError.Remote.UNAUTHORIZED)
+        401 -> {
+            val errorDto = try {
+                response.body<ErrorResponse>()
+            } catch (e: Exception) {
+                null
+            }
+            Result.Error(DataError.Remote.UNAUTHORIZED(errorDto?.message ?: "Unauthorized"))
+        }
         403 -> Result.Error(DataError.Remote.FORBIDDEN)
         408 -> Result.Error(DataError.Remote.REQUEST_TIMEOUT)
         429 -> Result.Error(DataError.Remote.TOO_MANY_REQUESTS)
